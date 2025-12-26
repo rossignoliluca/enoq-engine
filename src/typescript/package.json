@@ -9,11 +9,12 @@
     "start": "ts-node src/cli.ts",
     "cli": "ts-node src/cli.ts",
     "test": "ts-node src/test_pipeline.ts",
-    "test:all": "ts-node src/test_S5_verify.ts && ts-node src/test_meta_kernel.ts && ts-node src/test_l2_execution.ts && ts-node src/test_pipeline.ts",
+    "test:all": "ts-node src/test_S5_verify.ts && ts-node src/test_meta_kernel.ts && ts-node src/test_l2_execution.ts && ts-node src/test_pipeline.ts && ts-node src/test_gate_integration.ts",
     "test:s5": "ts-node src/test_S5_verify.ts",
     "test:metakernel": "ts-node src/test_meta_kernel.ts",
     "test:l2": "ts-node src/test_l2_execution.ts",
-    "test:pipeline": "ts-node src/test_pipeline.ts"
+    "test:pipeline": "ts-node src/test_pipeline.ts",
+    "test:gate": "ts-node src/test_gate_integration.ts"
   },
   "keywords": [
     "enoq",
