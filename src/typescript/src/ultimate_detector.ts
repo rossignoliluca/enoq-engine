@@ -801,25 +801,28 @@ function computeAbstention(
   // Compute risk flags
   const riskFlags: RiskFlags = {
     delegation: false, // Would need context history to detect
-    irreversibility: heads.domain_probs.D1_CRISIS > 0.3, // Crisis often involves irreversibility
-    low_confidence: heads.confidence < config.abstention_confidence_threshold,
-    incongruence: contrastive.incongruence_details.length > 0,
+    irreversibility: heads.domain_probs.D1_CRISIS > 0.5, // Only high crisis probability
+    low_confidence: heads.confidence < 0.25, // Very low confidence only
+    incongruence: contrastive.incongruence_details.length > 1, // Multiple incongruences
     repetition: false, // Would need session history
-    ood_detected: contrastive.top_match.similarity < 0.4, // Low max similarity = OOD
+    ood_detected: contrastive.top_match.similarity < 0.3, // Very low similarity = OOD
   };
 
   // Determine safety floor
+  // Philosophy: PROCEED is default. STOP only for genuine emergencies.
   let safetyFloor: SafetyFloor;
 
-  // STOP: high abstention OR emergency fast-path with any doubt
-  if (abstentionScore > 0.6 || (fastPath.emergency_detected && heads.confidence < 0.7)) {
+  // STOP: Only for genuine emergencies detected by fast-path
+  // The fast-path is highly tuned for somatic crisis signals
+  if (fastPath.emergency_detected) {
     safetyFloor = 'STOP';
   }
-  // MINIMAL: medium abstention OR any risk flag
-  else if (abstentionScore > 0.3 || Object.values(riskFlags).some(v => v)) {
+  // MINIMAL: Very high abstention (multiple red flags combined)
+  else if (abstentionScore > 0.8) {
     safetyFloor = 'MINIMAL';
   }
-  // PROCEED: confident and no risks
+  // PROCEED: Default for normal conversation
+  // Low confidence is normal for ambiguous human language
   else {
     safetyFloor = 'PROCEED';
   }
