@@ -130,10 +130,10 @@ export class GateClient {
       context_scope_id: this.config.context_scope_id,
     };
 
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), this.config.timeout_ms);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.config.timeout_ms);
 
+    try {
       const response = await fetch(`${this.config.base_url}/gate/classify`, {
         method: 'POST',
         headers: {
@@ -162,6 +162,9 @@ export class GateClient {
       return result;
 
     } catch (error) {
+      // IMPORTANT: Clear timeout to prevent Jest open handle leak
+      clearTimeout(timeoutId);
+
       // On any error, fail safe to NULL (proceed with ENOQ)
       const result: GateResult = {
         signal: 'NULL',
@@ -191,10 +194,10 @@ export class GateClient {
       return false;
     }
 
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
 
+    try {
       const response = await fetch(`${this.config.base_url}/health`, {
         signal: controller.signal,
       });
@@ -203,6 +206,8 @@ export class GateClient {
       return response.ok;
 
     } catch {
+      // IMPORTANT: Clear timeout to prevent Jest open handle leak
+      clearTimeout(timeoutId);
       return false;
     }
   }
