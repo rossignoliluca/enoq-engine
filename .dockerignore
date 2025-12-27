@@ -1,0 +1,55 @@
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║                         ENOQ-CORE DOCKERIGNORE                            ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
+
+# Dependencies (installed in container)
+node_modules
+**/node_modules
+
+# Build artifacts (built in container)
+dist
+**/dist
+
+# Data (mounted as volume)
+data
+*.db
+*.sqlite
+
+# Logs
+*.log
+logs
+
+# Environment/Secrets (NEVER in image)
+.env
+.env.*
+*.env
+
+# Git
+.git
+.gitignore
+.github
+
+# Tests (not needed in runtime image)
+**/__tests__
+**/*.test.ts
+**/*.spec.ts
+coverage
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+docs
+*.md
+
+# Temporary
+tmp
+temp
+.cache

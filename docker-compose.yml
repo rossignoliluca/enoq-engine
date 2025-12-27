@@ -1,0 +1,65 @@
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║                      ENOQ-CORE DOCKER COMPOSE                             ║
+# ║                                                                           ║
+# ║  Sistema Operativo Totale per l'Esistenza Umana                           ║
+# ║                                                                           ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
+#
+# Usage:
+#   docker compose build
+#   docker compose up -d
+#   docker compose logs -f enoq
+#   curl localhost:3000/healthz
+#
+# API keys via environment (NEVER in Dockerfile):
+#   OPENAI_API_KEY=sk-xxx docker compose up -d
+#
+# Or create .env file (add to .gitignore!):
+#   OPENAI_API_KEY=sk-xxx
+
+services:
+  enoq:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: enoq-core
+    restart: unless-stopped
+
+    # Environment (secrets via runtime only)
+    environment:
+      - NODE_ENV=production
+      - ENOQ_MODE=server
+      - ENOQ_PORT=3000
+      - ENOQ_DB_PATH=/data/enoq.sqlite
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+
+    # Persistent volume for SQLite
+    volumes:
+      - ./data:/data
+
+    ports:
+      - "3000:3000"
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+    # Health check calls /healthz endpoint
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    # Run server (not interactive CLI)
+    command: ["node", "dist/server.js"]
+
+networks:
+  default:
+    name: enoq-network

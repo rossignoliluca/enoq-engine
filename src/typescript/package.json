@@ -10,6 +10,7 @@
   "scripts": {
     "build": "tsc",
     "start": "ts-node src/cli.ts",
+    "server": "ts-node src/server.ts",
     "cli": "ts-node src/cli.ts",
     "enoq": "ts-node src/enoq_cli.ts",
     "enoq:debug": "ts-node src/enoq_cli.ts --debug --field",
