@@ -651,11 +651,12 @@ export class MemorySystem {
     if (episode) {
       Object.assign(episode.outcome, outcome);
 
-      // Update autonomy slope in regulatory state
+      // Update delegation trend in regulatory state
+      // Positive increment = user expressing autonomy (good)
       if (outcome.autonomy_expressed) {
         const regState = this.getRegulatoryState(user_id);
         this.updateRegulatoryState(user_id, {
-          autonomy_slope: regState.autonomy_slope + 0.01
+          delegation_trend: Math.min(1.0, regState.delegation_trend + 0.01)
         });
       }
     }

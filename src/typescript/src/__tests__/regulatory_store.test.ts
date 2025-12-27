@@ -1,17 +1,13 @@
 /**
  * Tests for RegulatoryStore
  *
- * Covers:
- * - SQLite store CRUD
- * - In-memory fallback
- * - TTL expiration
- * - Migration system
- * - WAL mode
- * - GDPR delete
+ * Constitutional Law Tests (LAW-01, LAW-02, LAW-03)
+ * + Standard CRUD, TTL, Migration, WAL, GDPR tests
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
+import Database from 'better-sqlite3';
 import {
   SQLiteStore,
   InMemoryStore,
@@ -38,6 +34,115 @@ function cleanup(): void {
     fs.unlinkSync(TEST_DB_PATH + '-shm');
   }
 }
+
+// ============================================
+// CONSTITUTIONAL LAW TESTS
+// These tests verify ENOQ's core invariants
+// ============================================
+
+describe('Constitutional Laws', () => {
+  beforeEach(() => {
+    cleanup();
+  });
+
+  afterEach(() => {
+    cleanup();
+  });
+
+  /**
+   * LAW-01: No user content persisted
+   * The schema must NOT contain columns for messages, responses, or profiles
+   */
+  it('LAW-01: Schema contains NO user content columns', () => {
+    const store = new SQLiteStore({ dbPath: TEST_DB_PATH });
+    store.save(createDefaultState('test_user'));
+
+    // Directly inspect the schema
+    const db = new Database(TEST_DB_PATH, { readonly: true });
+    const columns = db.prepare("PRAGMA table_info(field_state)").all() as any[];
+    const columnNames = columns.map(c => c.name);
+
+    // These columns MUST exist (regulatory state)
+    expect(columnNames).toContain('subject_id');
+    expect(columnNames).toContain('potency');
+    expect(columnNames).toContain('withdrawal_bias');
+    expect(columnNames).toContain('loop_count');
+    expect(columnNames).toContain('delegation_trend');
+    expect(columnNames).toContain('expires_at');
+
+    // These columns MUST NOT exist (user content)
+    expect(columnNames).not.toContain('message');
+    expect(columnNames).not.toContain('user_message');
+    expect(columnNames).not.toContain('response');
+    expect(columnNames).not.toContain('content');
+    expect(columnNames).not.toContain('text');
+    expect(columnNames).not.toContain('summary');
+    expect(columnNames).not.toContain('profile');
+    expect(columnNames).not.toContain('user_model');
+    expect(columnNames).not.toContain('embedding');
+
+    db.close();
+    store.close();
+  });
+
+  /**
+   * LAW-02: TTL enforced - all data expires
+   * No regulatory state may persist beyond its TTL
+   */
+  it('LAW-02: TTL is enforced - expired data is not returned', () => {
+    const store = new SQLiteStore({ dbPath: TEST_DB_PATH });
+
+    // Create state with very short TTL (already expired)
+    const expiredState: RegulatoryState = {
+      ...createDefaultState('expired_user'),
+      expires_at: Date.now() - 1000  // 1 second ago
+    };
+    store.save(expiredState);
+
+    // State should NOT be retrievable (even though it's in DB)
+    const retrieved = store.get('expired_user');
+    expect(retrieved).toBeNull();
+
+    // Purge should remove it
+    const purged = store.purgeExpired();
+    expect(purged).toBe(1);
+
+    store.close();
+  });
+
+  /**
+   * LAW-03: GDPR delete removes ALL subject data
+   * After delete, no trace of subject may remain
+   */
+  it('LAW-03: GDPR delete removes all subject data', () => {
+    const store = new SQLiteStore({ dbPath: TEST_DB_PATH });
+
+    // Create state for user
+    store.save(createDefaultState('gdpr_user'));
+    expect(store.get('gdpr_user')).not.toBeNull();
+
+    // Delete user data
+    store.delete('gdpr_user');
+
+    // Verify complete removal
+    expect(store.get('gdpr_user')).toBeNull();
+
+    // Verify at database level (no rows remain)
+    const db = new Database(TEST_DB_PATH, { readonly: true });
+    const row = db.prepare(
+      "SELECT COUNT(*) as count FROM field_state WHERE subject_id = ?"
+    ).get('gdpr_user') as { count: number };
+
+    expect(row.count).toBe(0);
+
+    db.close();
+    store.close();
+  });
+});
+
+// ============================================
+// STANDARD TESTS
+// ============================================
 
 describe('RegulatoryStore', () => {
   beforeEach(() => {
@@ -154,13 +259,13 @@ describe('RegulatoryStore', () => {
       store.update('user_1', {
         potency: 0.7,
         withdrawal_bias: 0.2,
-        autonomy_slope: 0.1
+        delegation_trend: 0.1
       });
 
       const retrieved = store.get('user_1');
       expect(retrieved?.potency).toBe(0.7);
       expect(retrieved?.withdrawal_bias).toBe(0.2);
-      expect(retrieved?.autonomy_slope).toBe(0.1);
+      expect(retrieved?.delegation_trend).toBe(0.1);
 
       store.close();
     });
@@ -333,7 +438,7 @@ describe('createDefaultState', () => {
     expect(state.potency).toBe(1.0);
     expect(state.withdrawal_bias).toBe(0.0);
     expect(state.loop_count).toBe(0);
-    expect(state.autonomy_slope).toBe(0.0);
+    expect(state.delegation_trend).toBe(0.0);
     expect(state.expires_at).toBeGreaterThan(Date.now());
   });
 

@@ -5,7 +5,7 @@
  * NO user content, NO messages, NO profiles.
  *
  * Schema:
- * - field_state: potency, withdrawal_bias, loop_count, autonomy_slope
+ * - field_state: potency, withdrawal_bias, loop_count, delegation_trend
  * - All with TTL (expires_at)
  *
  * Principles:
@@ -27,7 +27,7 @@ export interface RegulatoryState {
   potency: number;           // 0.0-1.0, dissipates over time
   withdrawal_bias: number;   // 0.0-1.0, accumulates
   loop_count: number;        // Detect repetitive patterns
-  autonomy_slope: number;    // Positive = growing independence
+  delegation_trend: number;  // -1 to +1: negative=delegating more, positive=more independent
   last_interaction: number;  // Unix timestamp ms
   expires_at: number;        // Unix timestamp ms
 }
@@ -58,7 +58,7 @@ const MIGRATIONS: Record<number, string> = {
       potency REAL NOT NULL DEFAULT 1.0,
       withdrawal_bias REAL NOT NULL DEFAULT 0.0,
       loop_count INTEGER NOT NULL DEFAULT 0,
-      autonomy_slope REAL NOT NULL DEFAULT 0.0,
+      delegation_trend REAL NOT NULL DEFAULT 0.0,
       last_interaction INTEGER NOT NULL,
       expires_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
@@ -213,7 +213,7 @@ export class SQLiteStore implements IRegulatoryStore {
       potency: row.potency,
       withdrawal_bias: row.withdrawal_bias,
       loop_count: row.loop_count,
-      autonomy_slope: row.autonomy_slope,
+      delegation_trend: row.delegation_trend,
       last_interaction: row.last_interaction,
       expires_at: row.expires_at
     };
@@ -223,14 +223,14 @@ export class SQLiteStore implements IRegulatoryStore {
     this.db.prepare(`
       INSERT OR REPLACE INTO field_state (
         subject_id, potency, withdrawal_bias, loop_count,
-        autonomy_slope, last_interaction, expires_at, updated_at
+        delegation_trend, last_interaction, expires_at, updated_at
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       state.subject_id,
       state.potency,
       state.withdrawal_bias,
       state.loop_count,
-      state.autonomy_slope,
+      state.delegation_trend,
       state.last_interaction,
       state.expires_at,
       Date.now()
@@ -404,7 +404,7 @@ export function createDefaultState(
     potency: 1.0,
     withdrawal_bias: 0.0,
     loop_count: 0,
-    autonomy_slope: 0.0,
+    delegation_trend: 0.0,  // 0 = neutral, positive = independent, negative = delegating
     last_interaction: now,
     expires_at: now + ttl
   };
