@@ -482,16 +482,19 @@ export class TotalSystemOrchestrator {
       response += ' ' + (questions[language] || questions.en);
     }
 
-    // Emergency should include grounding
+    // Emergency should include grounding (only if not already present)
     if (dimensionalState.emergency_detected) {
-      const grounding: Record<string, string> = {
-        en: 'Right now, just notice your breath.',
-        it: 'Adesso, nota solo il tuo respiro.',
-        es: 'Ahora mismo, solo nota tu respiración.',
-        fr: 'Maintenant, remarque simplement ta respiration.',
-        de: 'Gerade jetzt, bemerke einfach deinen Atem.'
-      };
-      response = (grounding[language] || grounding.en) + ' ' + response;
+      const groundingMarkers = /breath|respir|atem|souffle/i;
+      if (!groundingMarkers.test(response)) {
+        const grounding: Record<string, string> = {
+          en: 'Right now, just notice your breath.',
+          it: 'Adesso, nota solo il tuo respiro.',
+          es: 'Ahora mismo, solo nota tu respiración.',
+          fr: 'Maintenant, remarque simplement ta respiration.',
+          de: 'Gerade jetzt, bemerke einfach deinen Atem.'
+        };
+        response = (grounding[language] || grounding.en) + ' ' + response;
+      }
     }
 
     // Ensure minimum response if empty
