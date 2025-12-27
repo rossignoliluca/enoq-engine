@@ -491,12 +491,13 @@ export class ConcrescenceEngine {
       });
     }
 
-    // From Constitution (always present)
+    // From Constitution (gravitationally inevitable, not forced)
+    // The field curves all trajectories toward these - Tzimtzum
     prehensions.push({
       source: 'CONSTITUTION',
       type: 'invariants',
       data: CONSTITUTIONAL_INVARIANTS,
-      weight: 1.0,  // Maximum weight - constitutional is absolute
+      weight: 1.0,  // Maximum gravitational mass - not force but curvature
       relevance: 1.0,
     });
 

@@ -101,14 +101,16 @@ const VERTICAL_MARKERS: Record<VerticalDimension, {
     phrases: [
       /my body|il mio corpo|mi cuerpo/i,
       /physically|fisicamente|físicamente/i,
-      /can't sleep|non riesco a dormire|no puedo dormir/i,
+      // Apostrophe-flexible patterns
+      /can'?t sleep|cant sleep|non riesco a dormire|no puedo dormir/i,
       /no energy|senza energia|sin energía/i,
-      /can't breathe|non riesco a respirare|no puedo respirar/i,
-      /heart is racing|cuore che batte|corazón late/i,
-      /heart beat|battito|latido/i,
+      /can'?t breathe|cant breathe|non riesco a respirare|no puedo respirar/i,
+      /heart is racing|heart racing|cuore che batte|corazón late/i,
+      /heart beat|heartbeat|battito|latido/i,
       /batte forte|beating fast|late rápido/i,
       /panic attack|attacco di panico|ataque de pánico/i,
-      /I feel sick|mi sento male|me siento mal/i
+      /I feel sick|mi sento male|me siento mal/i,
+      /I'?m scared|Im scared|ho paura|tengo miedo/i
     ],
     semantic_fields: ['physical', 'sensation', 'embodiment', 'vitality']
   },
@@ -247,15 +249,30 @@ const HORIZONTAL_MARKERS: Record<HumanDomain, {
   context_clues: string[];
 }> = {
   H01_SURVIVAL: {
-    keywords: [/survive|sopravvivere|threat|minaccia|danger|pericolo|crisis|crisi|emergency|emergenza/i],
+    keywords: [
+      /survive|sopravvivere|threat|minaccia|danger|pericolo|crisis|crisi|emergency|emergenza/i,
+      /can'?t breathe|cant breathe|non riesco a respirare/i,  // Panic/survival
+      /going to die|sto per morire|morire/i,
+      /help me|aiutami|aiuto/i
+    ],
     context_clues: ['immediate threat', 'life or death', 'basic needs']
   },
   H02_SAFETY: {
-    keywords: [/safe|sicuro|protect|proteggere|security|sicurezza|stable|stabile|fear|paura/i],
+    keywords: [
+      /safe|sicuro|protect|proteggere|security|sicurezza|stable|stabile|fear|paura/i,
+      /scared|spaventato|impaurito|afraid|terrified|terrorizzato/i,  // Fear response
+      /panic|panico|anxiety|ansia|anxious/i,  // Anxiety-related
+      /heart racing|heart pounding|cuore che batte/i
+    ],
     context_clues: ['stability', 'predictability', 'protection']
   },
   H03_BODY: {
-    keywords: [/body|corpo|health|salute|physical|fisico|exercise|esercizio|eating|mangiare/i],
+    keywords: [
+      /body|corpo|health|salute|physical|fisico|exercise|esercizio|eating|mangiare/i,
+      /breathe|respirare|breath|respiro/i,  // Breathing
+      /heart|cuore|chest|petto/i,  // Body parts in distress
+      /shaking|tremando|sweating|sudando/i
+    ],
     context_clues: ['physical wellbeing', 'body image', 'health habits']
   },
   H04_EMOTION: {
@@ -267,11 +284,22 @@ const HORIZONTAL_MARKERS: Record<HumanDomain, {
     context_clues: ['thinking', 'understanding', 'mental processes']
   },
   H06_MEANING: {
-    keywords: [/meaning|significato|purpose|scopo|why|perché|sense|senso|matter|importa/i],
+    keywords: [
+      /meaning|significato|purpose|scopo|why|perché|sense|senso|matter|importa/i,
+      /life|vita|leben|vie|vida/i,  // Life references often existential
+      /point|punto|worth|vale/i,  // "What's the point"
+      /reason|ragione|motivo/i,
+      /lost|perso|perdido/i  // Feeling lost often meaning-related
+    ],
     context_clues: ['meaning-making', 'purpose', 'significance']
   },
   H07_IDENTITY: {
-    keywords: [/who am I|chi sono|identity|identità|self|io|authentic|autentico|real me|vero me/i],
+    keywords: [
+      /who am I|chi sono|identity|identità|self|io|authentic|autentico|real me|vero me/i,
+      /confused|confuso|confundido/i,  // Identity confusion
+      /don'?t know who|non so chi/i,
+      /myself|me stesso|mi mismo/i
+    ],
     context_clues: ['self-concept', 'identity', 'authenticity']
   },
   H08_TEMPORAL: {
@@ -454,9 +482,9 @@ export class DimensionalDetector {
     vertical: Record<VerticalDimension, number>,
     horizontal: Record<HumanDomain, number>
   ): IntegrationMetrics {
-    // Count active dimensions
-    const activeVertical = Object.values(vertical).filter(v => v > 0.3).length;
-    const activeHorizontal = Object.values(horizontal).filter(v => v > 0.3).length;
+    // Count active dimensions (>= 0.3 threshold)
+    const activeVertical = Object.values(vertical).filter(v => v >= 0.3).length;
+    const activeHorizontal = Object.values(horizontal).filter(v => v >= 0.3).length;
 
     // Complexity = total active dimensions
     const complexity = activeVertical + activeHorizontal;
@@ -495,7 +523,7 @@ export class DimensionalDetector {
     let integration = 0;
     for (let i = 0; i < allValues.length; i++) {
       for (let j = i + 1; j < allValues.length; j++) {
-        if (allValues[i] > 0.3 && allValues[j] > 0.3) {
+        if (allValues[i] >= 0.3 && allValues[j] >= 0.3) {  // >= to include threshold
           integration += allValues[i] * allValues[j];
         }
       }
@@ -526,9 +554,9 @@ export class DimensionalDetector {
     let count = 0;
 
     for (const [vert, horz] of pairings) {
-      if (vertical[vert] > 0.3) {
+      if (vertical[vert] >= 0.3) {  // >= to include threshold
         for (const h of horz) {
-          if (horizontal[h] > 0.3) {
+          if (horizontal[h] >= 0.3) {  // >= to include threshold
             coherenceScore += 1;
           }
           count++;
@@ -591,7 +619,7 @@ export class DimensionalDetector {
     const active: [HumanDomain, number][] = [];
 
     for (const [domain, value] of Object.entries(horizontal)) {
-      if (value > threshold) {
+      if (value >= threshold) {  // >= to include exact threshold matches
         active.push([domain as HumanDomain, value]);
       }
     }
@@ -692,14 +720,15 @@ export class DimensionalDetector {
 
     const emergencyPatterns = [
       /help me|aiutami|ayúdame/i,
-      /can't breathe|non riesco a respirare|no puedo respirar/i,
+      // Apostrophe-flexible patterns (can't/cant, I'm/Im, etc.)
+      /can'?t breathe|cant breathe|non riesco a respirare|no puedo respirar/i,
       /going to die|sto per morire|voy a morir/i,
       /kill myself|uccidermi|matarme/i,
       /end it|farla finita|acabar/i,
       /hurt myself|farmi del male|hacerme daño/i,
       /panic|panico|pánico/i,
       /heart attack|infarto|ataque al corazón/i,
-      /can't stop|non riesco a fermare|no puedo parar/i,
+      /can'?t stop|cant stop|non riesco a fermare|no puedo parar/i,
       /losing control|perdendo il controllo|perdiendo el control/i,
       /so scared|così spaventato|tan asustado/i,
       /terrified|terrorizzato|aterrorizado/i,
@@ -707,10 +736,10 @@ export class DimensionalDetector {
       // Additional panic/anxiety markers
       /suffocating|soffocare|soffoco|asfixia/i,
       /trembling|shaking|tremando|temblando/i,
-      /can't calm|non riesco a calmar|no puedo calmar/i,
-      /ho paura|I'm scared|tengo miedo|j'ai peur|ich habe angst/i,
+      /can'?t calm|cant calm|non riesco a calmar|no puedo calmar/i,
+      /ho paura|I'?m scared|Im scared|tengo miedo|j'ai peur|ich habe angst/i,
       /sto male|I feel awful|me siento mal/i,
-      /heart pounding|cuore che batte|corazón late/i,
+      /heart pounding|heart is racing|heart racing|cuore che batte|corazón late/i,
       /anxiety attack|attacco d'ansia|ataque de ansiedad/i,
       /hyperventilating|iperventilando/i
     ];

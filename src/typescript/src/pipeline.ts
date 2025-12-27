@@ -39,6 +39,15 @@ import {
   getGateClient,
   GateClientConfig,
 } from './gate_client';
+import {
+  curveSelection,
+  getFieldTraceInfo,
+  FieldTraceInfo
+} from './genesis/field_integration';
+import {
+  dimensionalDetector,
+  DimensionalState
+} from './dimensional_system';
 
 // ============================================
 // PIPELINE CONFIG
@@ -110,6 +119,9 @@ export interface PipelineTrace {
   };
   s2_clarify_needed: boolean;
   s3_selection: ProtocolSelection;
+
+  // Genesis Field curvature (connects pipeline to field physics)
+  s3_field?: FieldTraceInfo;
   s4_context: {
     runtime: string;
     forbidden: string[];
@@ -368,8 +380,29 @@ export async function enoq(
   // S1: SENSE (Perceive + Governor + MetaKernel)
   // ==========================================
 
-  // L1 Perception
-  const s1_field = perceive(s0_input);
+  // Build conversation history from session turns for loop detection
+  const conversationHistory = session.turns.map(t => t.input);
+
+  // L1 Perception (with history for loop detection)
+  const s1_field = perceive(s0_input, conversationHistory);
+
+  // Dimensional detection - adds vertical dimension awareness
+  const dimensionalState = dimensionalDetector.detect(
+    s0_input,
+    session.memory.language_preference === 'auto' ? 'en' : session.memory.language_preference,
+    { field_state: s1_field }
+  );
+
+  // Log dimensional state for debugging
+  if (process.env.ENOQ_DEBUG) {
+    console.log(`[DIMENSIONS] Primary: ${dimensionalState.primary_vertical}`);
+    if (dimensionalState.v_mode_triggered) {
+      console.log(`[DIMENSIONS] V_MODE triggered by existential/transcendent dimension`);
+    }
+    if (dimensionalState.emergency_detected) {
+      console.log(`[DIMENSIONS] EMERGENCY detected from somatic dimension`);
+    }
+  }
 
   // Update session memory with language
   if (s1_field.language && s1_field.language !== 'mixed' && s1_field.language !== 'unknown') {
@@ -484,7 +517,81 @@ export async function enoq(
   // Define depth order for later use
   const depthOrder = ['surface', 'medium', 'deep'];
 
-  const s3_selection = select(s1_field);
+  let s3_selection = select(s1_field);
+
+  // ==========================================
+  // S3.5: GENESIS FIELD CURVATURE
+  // The field curves the selection toward constitutional attractors
+  // This is where AXIS-as-field replaces AXIS-as-validator
+  // ==========================================
+
+  const { selection: curvedSelection, fieldResponse } = curveSelection(s3_selection, s1_field);
+  s3_selection = curvedSelection;
+
+  // Log field curvature for debugging
+  if (process.env.ENOQ_DEBUG) {
+    console.log(`[FIELD] Stability: ${fieldResponse.stability}, Energy: ${fieldResponse.energy.total.toFixed(0)}`);
+    if (fieldResponse.curvature_explanation.length > 0) {
+      console.log(`[FIELD] Curvature: ${fieldResponse.curvature_explanation.join('; ')}`);
+    }
+    if (fieldResponse.suggests_withdrawal) {
+      console.log(`[FIELD] Suggests withdrawal`);
+    }
+  }
+
+  // ==========================================
+  // S3.6: DIMENSIONAL CONSTRAINTS
+  // Apply constraints based on vertical dimension
+  // ==========================================
+
+  // V_MODE from dimensional detection takes precedence
+  if (dimensionalState.v_mode_triggered && s3_selection.atmosphere !== 'V_MODE') {
+    s3_selection.atmosphere = 'V_MODE';
+    s3_selection.forbidden = [
+      ...s3_selection.forbidden,
+      'prescribe',
+      'recommend',
+      'advise',
+      'decide_for_user'
+    ];
+    s3_selection.required = [
+      ...s3_selection.required,
+      'return_ownership',
+      'end_with_question'
+    ];
+  }
+
+  // Emergency from dimensional detection
+  if (dimensionalState.emergency_detected && s3_selection.atmosphere !== 'EMERGENCY') {
+    s3_selection.atmosphere = 'EMERGENCY';
+    s3_selection.depth = 'surface';
+    s3_selection.length = 'minimal';
+    s3_selection.primitive = 'P01_GROUND';
+    s3_selection.required = [
+      ...s3_selection.required,
+      'acknowledge_distress',
+      'offer_grounding'
+    ];
+  }
+
+  // Transcendent dimension: maximum restriction on prescription
+  if (dimensionalState.primary_vertical === 'TRANSCENDENT') {
+    s3_selection.forbidden = [
+      ...s3_selection.forbidden,
+      'any_prescription',
+      'meaning_assignment',
+      'purpose_suggestion'
+    ];
+  }
+
+  // Existential dimension: protect identity
+  if (dimensionalState.primary_vertical === 'EXISTENTIAL') {
+    s3_selection.forbidden = [
+      ...s3_selection.forbidden,
+      'identity_labeling',
+      'value_prescription'
+    ];
+  }
 
   // Apply Governor constraints to selection
   if (s1_governor.effect.atmosphere) {
@@ -616,7 +723,8 @@ export async function enoq(
     false,
     Date.now() - startTime,
     gateResult,
-    gateEffect
+    gateEffect,
+    getFieldTraceInfo(fieldResponse)
   );
 
   const turn: Turn = {
@@ -651,7 +759,8 @@ function createTrace(
   clarifyNeeded: boolean,
   latencyMs: number,
   gateResult?: GateResult | null,
-  gateEffect?: GateSignalEffect
+  gateEffect?: GateSignalEffect,
+  fieldTraceInfo?: FieldTraceInfo
 ): PipelineTrace {
   return {
     s0_gate: gateResult ? {
@@ -670,6 +779,7 @@ function createTrace(
     },
     s2_clarify_needed: clarifyNeeded,
     s3_selection: selection || {} as ProtocolSelection,
+    s3_field: fieldTraceInfo,
     s4_context: context ? {
       runtime: context.runtime,
       forbidden: context.constraints.forbidden,
@@ -743,6 +853,16 @@ export async function conversationLoop(): Promise<void> {
         console.log(`Governor rules: ${lastTrace.s1_governor.rules_applied?.join(', ') || 'none'}`);
         console.log(`MetaKernel: power=${lastTrace.s1_meta_kernel.power_level.toFixed(2)}, ceiling=${lastTrace.s1_meta_kernel.depth_ceiling}`);
         console.log(`Selection: ${lastTrace.s3_selection.atmosphere || 'N/A'} / ${lastTrace.s3_selection.primitive || 'N/A'}`);
+        // Genesis Field info
+        if (lastTrace.s3_field) {
+          console.log(`Field: stability=${lastTrace.s3_field.stability}, energy=${lastTrace.s3_field.energy.toFixed(0)}`);
+          if (lastTrace.s3_field.suggests_withdrawal) {
+            console.log(`Field: SUGGESTS WITHDRAWAL`);
+          }
+          if (lastTrace.s3_field.curvature_explanation.length > 0) {
+            console.log(`Field curvature: ${lastTrace.s3_field.curvature_explanation.join('; ')}`);
+          }
+        }
         console.log(`Runtime: ${lastTrace.s4_context.runtime}`);
         console.log(`Verification: ${lastTrace.s5_verification.passed ? 'PASS' : 'FAIL'}`);
         console.log(`Latency: ${lastTrace.latency_ms}ms`);
@@ -755,6 +875,121 @@ export async function conversationLoop(): Promise<void> {
         const result = await enoq(input, session);
         lastTrace = result.trace;
         console.log(`\nENOQ: ${result.output}\n`);
+      } catch (error) {
+        console.error('\n[Error]', error);
+      }
+
+      prompt();
+    });
+  };
+
+  prompt();
+}
+
+// ============================================
+// CONCRESCENCE CONVERSATION LOOP (CLI)
+// ============================================
+
+/**
+ * Unified conversation loop using ConcrescenceEngine
+ *
+ * This is the recommended CLI entry point.
+ * It runs both Pipeline and TotalSystem in parallel,
+ * integrating them through Whiteheadian concrescence.
+ */
+export async function concrescenceConversationLoop(): Promise<void> {
+  // Dynamic import to avoid circular dependency
+  const { ConcrescenceEngine } = await import('./concrescence_engine');
+
+  const engine = new ConcrescenceEngine({ debug: false });
+  const session = createSession();
+
+  console.log('\n╔═══════════════════════════════════════════════════════════════════════════╗');
+  console.log('║                                                                           ║');
+  console.log('║                              E N O Q                                      ║');
+  console.log('║                                                                           ║');
+  console.log('║              Sistema Operativo Totale per l\'Esistenza Umana               ║');
+  console.log('║                     Powered by Concrescence Engine                        ║');
+  console.log('║                                                                           ║');
+  console.log('╚═══════════════════════════════════════════════════════════════════════════╝');
+  console.log('\nCommands: "exit" to quit, "trace" for debug, "occasion" for full occasion');
+  console.log('─'.repeat(75) + '\n');
+
+  const readline = await import('readline');
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  let lastOccasion: any = null;
+
+  const prompt = () => {
+    rl.question('You: ', async (input) => {
+      if (input.toLowerCase() === 'exit') {
+        console.log('\n[Session ended]');
+        console.log(`Turns: ${session.turns.length}`);
+        console.log(`Occasions: ${engine.getOccasionHistory().length}`);
+        rl.close();
+        return;
+      }
+
+      if (input.toLowerCase() === 'trace' && lastOccasion) {
+        console.log('\n--- CONCRESCENCE TRACE ---');
+        console.log(`Occasion: ${lastOccasion.id}`);
+        console.log(`Primitive: ${lastOccasion.concrescence.satisfaction.primitive}`);
+        console.log(`Atmosphere: ${lastOccasion.concrescence.satisfaction.atmosphere}`);
+        console.log(`Depth: ${lastOccasion.concrescence.satisfaction.depth}`);
+        console.log(`Confidence: ${lastOccasion.concrescence.satisfaction.confidence.toFixed(2)}`);
+        console.log(`Constitutional: ${lastOccasion.concrescence.satisfaction.constitutional_verified ? 'PASS' : 'FAIL'}`);
+        console.log(`Prehensions: ${lastOccasion.concrescence.prehensions.length}`);
+        console.log(`Tensions: ${lastOccasion.concrescence.tensions.map((t: any) => t.nature).join(', ') || 'none'}`);
+        console.log(`Coherences: ${lastOccasion.concrescence.coherences.map((c: any) => c.on).join(', ') || 'none'}`);
+        if (lastOccasion.present.dimensional_state) {
+          console.log(`V_MODE: ${lastOccasion.present.dimensional_state.v_mode_triggered}`);
+          console.log(`Emergency: ${lastOccasion.present.dimensional_state.emergency_detected}`);
+          console.log(`Phi: ${lastOccasion.present.dimensional_state.integration.phi.toFixed(3)}`);
+        }
+        console.log('─'.repeat(30) + '\n');
+        prompt();
+        return;
+      }
+
+      if (input.toLowerCase() === 'occasion' && lastOccasion) {
+        console.log('\n--- FULL OCCASION ---');
+        console.log(JSON.stringify(lastOccasion, null, 2));
+        console.log('─'.repeat(30) + '\n');
+        prompt();
+        return;
+      }
+
+      try {
+        // Detect language (simple heuristic)
+        const language = /[àèìòùé]/.test(input) ? 'it' : 'en';
+
+        const result = await engine.process(input, session, language as any);
+        lastOccasion = result.occasion;
+
+        // Format response with concrescence metadata
+        console.log('\n┌' + '─'.repeat(73) + '┐');
+        console.log(`│  ${result.occasion.concrescence.satisfaction.primitive} · ${result.occasion.concrescence.satisfaction.atmosphere} · ${result.occasion.concrescence.satisfaction.depth}`);
+        console.log('├' + '─'.repeat(73) + '┤');
+
+        // Word-wrap response
+        const response = result.occasion.future.response;
+        const words = response.split(' ');
+        let line = '';
+        for (const word of words) {
+          if (line.length + word.length + 1 <= 70) {
+            line += (line ? ' ' : '') + word;
+          } else {
+            console.log(`│  ${line}`);
+            line = word;
+          }
+        }
+        if (line) console.log(`│  ${line}`);
+
+        console.log('└' + '─'.repeat(73) + '┘\n');
+
       } catch (error) {
         console.error('\n[Error]', error);
       }

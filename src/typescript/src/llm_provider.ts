@@ -11,6 +11,7 @@
  */
 
 import { SupportedLanguage, CULTURE_PROFILES } from './types';
+import { validateResponse as axisValidate, AxisDecision } from './axis/axis';
 
 // ============================================
 // TYPES
@@ -263,28 +264,99 @@ export interface GenerationContext {
 }
 
 /**
- * Generate ENOQ response using LLM
+ * Generate ENOQ response using LLM with AXIS validation
+ *
+ * The LLM response is validated against AXIS invariants.
+ * If it violates any invariant, we:
+ * 1. Try to regenerate with lower temperature
+ * 2. If still invalid, return a safe fallback
+ *
+ * This is the constitutional constraint on LLM output.
  */
 export async function generateResponse(
   context: GenerationContext
 ): Promise<string> {
   const systemPrompt = buildSystemPrompt(context);
   const userPrompt = buildUserPrompt(context);
-  
-  try {
-    const response = await callLLM({
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }],
-      max_tokens: context.depth === 'surface' ? 100 : context.depth === 'medium' ? 200 : 400,
-      temperature: 0.7,
-    });
-    
-    return response.content;
-  } catch (error) {
-    console.error('LLM generation failed:', error);
-    // Return null to trigger fallback
-    throw error;
+
+  const maxAttempts = 2;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const response = await callLLM({
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }],
+        max_tokens: context.depth === 'surface' ? 100 : context.depth === 'medium' ? 200 : 400,
+        temperature: attempt === 1 ? 0.7 : 0.3, // Lower temperature on retry
+      });
+
+      // AXIS Validation - Constitutional constraint on LLM output
+      const axisDecision = axisValidate(response.content);
+
+      if (axisDecision.verdict === 'VALID') {
+        return response.content;
+      }
+
+      // Log the violation
+      console.warn(
+        `[LLM] AXIS violation on attempt ${attempt}: ${axisDecision.reason} (${axisDecision.invariant_checked})`
+      );
+
+      // If this was the last attempt, use fallback
+      if (attempt === maxAttempts) {
+        console.warn('[LLM] Max attempts reached, using AXIS-safe fallback');
+        return getAxisSafeFallback(context);
+      }
+
+      // Otherwise, try again with lower temperature
+    } catch (error) {
+      console.error('LLM generation failed:', error);
+      throw error;
+    }
   }
+
+  // Should never reach here, but return fallback just in case
+  return getAxisSafeFallback(context);
+}
+
+/**
+ * AXIS-safe fallback responses
+ * These are guaranteed to not violate any invariants
+ */
+function getAxisSafeFallback(context: GenerationContext): string {
+  const lang = context.language;
+
+  // Simple, non-prescriptive responses per atmosphere
+  const fallbacks: Record<string, Record<string, string>> = {
+    EMERGENCY: {
+      en: "I'm here with you. Take a breath if you can.",
+      it: "Sono qui con te. Fai un respiro se riesci.",
+      es: "Estoy aquí contigo. Respira si puedes.",
+    },
+    V_MODE: {
+      en: "I hear you. What feels most important to you right now?",
+      it: "Ti ascolto. Cosa ti sembra più importante adesso?",
+      es: "Te escucho. ¿Qué te parece más importante ahora?",
+    },
+    HUMAN_FIELD: {
+      en: "I'm listening. Tell me more about what you're experiencing.",
+      it: "Ti ascolto. Dimmi di più su quello che stai vivendo.",
+      es: "Te escucho. Cuéntame más sobre lo que estás experimentando.",
+    },
+    DECISION: {
+      en: "What options are you considering?",
+      it: "Quali opzioni stai considerando?",
+      es: "¿Qué opciones estás considerando?",
+    },
+    OPERATIONAL: {
+      en: "I understand. What would be helpful right now?",
+      it: "Capisco. Cosa ti sarebbe utile adesso?",
+      es: "Entiendo. ¿Qué te sería útil ahora?",
+    },
+  };
+
+  const atmosphereFallbacks = fallbacks[context.atmosphere] || fallbacks.HUMAN_FIELD;
+  return atmosphereFallbacks[lang] || atmosphereFallbacks.en || "I'm here.";
 }
 
 const LANGUAGE_NAMES: Record<SupportedLanguage, string> = {

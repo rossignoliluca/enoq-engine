@@ -316,11 +316,111 @@ function detectCoherence(message: string): Coherence {
 function detectTemporal(message: string): { past_salience: number; future_salience: number } {
   const pastMarkers = /\b(was|were|used to|remember|back then|yesterday|last)\b/i;
   const futureMarkers = /\b(will|going to|tomorrow|next|future|plan|if I)\b/i;
-  
+
   return {
     past_salience: pastMarkers.test(message) ? 0.7 : 0.2,
     future_salience: futureMarkers.test(message) ? 0.7 : 0.2
   };
+}
+
+// ============================================
+// LOOP DETECTION
+// Detects repetitive patterns in conversation
+// Scientific basis: Markov chains, pattern detection
+// ============================================
+
+function detectLoopCount(
+  currentDomains: DomainActivation[],
+  conversationHistory: string[]
+): number {
+  if (conversationHistory.length < 2) {
+    return 0;
+  }
+
+  // Extract top domain from current turn
+  const currentTopDomain = currentDomains[0]?.domain;
+  if (!currentTopDomain) return 0;
+
+  // Parse domains from recent history
+  // We look for repetitive domain patterns
+  const recentDomains: string[] = [];
+
+  // Get domains from last N turns (up to 5)
+  const historyToCheck = conversationHistory.slice(-5);
+
+  for (const msg of historyToCheck) {
+    // Quick domain detection for history (simplified)
+    // In production, would cache previous perceive results
+    const detectedDomain = quickDomainDetect(msg);
+    if (detectedDomain) {
+      recentDomains.push(detectedDomain);
+    }
+  }
+
+  // Add current domain
+  recentDomains.push(currentTopDomain);
+
+  // Count how many times the current domain appears consecutively
+  let loopCount = 0;
+  for (let i = recentDomains.length - 1; i >= 0; i--) {
+    if (recentDomains[i] === currentTopDomain) {
+      loopCount++;
+    } else {
+      break;
+    }
+  }
+
+  // Also detect alternating patterns (A-B-A-B)
+  if (recentDomains.length >= 4) {
+    const last4 = recentDomains.slice(-4);
+    if (last4[0] === last4[2] && last4[1] === last4[3] && last4[0] !== last4[1]) {
+      // Alternating pattern detected
+      loopCount = Math.max(loopCount, 2);
+    }
+  }
+
+  return loopCount;
+}
+
+/**
+ * Quick domain detection for history messages
+ * Simplified version of full domain detection for efficiency
+ */
+function quickDomainDetect(message: string): string | null {
+  const msg = message.toLowerCase();
+
+  // Crisis/Survival
+  if (/\b(help|emergency|dying|danger|suicide|harm)\b/.test(msg)) {
+    return 'H01_SURVIVAL';
+  }
+
+  // Identity
+  if (/\b(who am i|identity|myself|don't know who)\b/.test(msg)) {
+    return 'H07_IDENTITY';
+  }
+
+  // Meaning
+  if (/\b(meaning|purpose|why|sense|point)\b/.test(msg)) {
+    return 'H06_MEANING';
+  }
+
+  // Emotion
+  if (/\b(feel|feeling|emotion|sad|angry|anxious|happy|afraid)\b/.test(msg)) {
+    return 'H04_EMOTION';
+  }
+
+  // Decision
+  if (/\b(decide|choice|should i|option|or)\b/.test(msg)) {
+    return 'H08_AUTONOMY';
+  }
+
+  // Attachment
+  if (/\b(relationship|partner|friend|family|love|miss|lost)\b/.test(msg)) {
+    return 'H09_ATTACHMENT';
+  }
+
+  // Default to cognition
+  return 'H05_COGNITION';
 }
 
 // ============================================
@@ -375,8 +475,8 @@ export function perceive(message: string, conversationHistory: string[] = []): F
   const temporal = detectTemporal(message);
   const goal = detectGoal(message, topDomains);
   
-  // Loop detection (simplified - would need conversation history)
-  const loopCount = 0;  // TODO: implement with history
+  // Loop detection: detect repetitive domain patterns
+  const loopCount = detectLoopCount(topDomains, conversationHistory);
   
   // Calculate global uncertainty
   const avgConfidence = topDomains.reduce((sum, d) => sum + (d.confidence || 0.5), 0) / topDomains.length;
