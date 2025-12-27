@@ -2,6 +2,8 @@
  * ENOQ TOTAL SYSTEM ORCHESTRATOR
  *
  * Integrates all components into a unified cognitive system.
+ * The "invention of the century" - a complete cognitive architecture
+ * synthesizing 215 disciplines across science, philosophy, and practice.
  *
  * Components:
  * - Memory System (Hippocampal-Cortical)
@@ -9,19 +11,24 @@
  * - Multi-Agent Swarm (Emergent Intelligence)
  * - Metacognitive Monitor (Self-Awareness)
  * - Temporal Engine (Past-Present-Future)
+ * - 215 Disciplines Synthesis (Pattern Language + Modes)
  *
  * Flow:
  * 1. Input → Memory Context + Dimensional Detection
  * 2. → Agent Swarm Processing
  * 3. → Temporal Analysis
- * 4. → Response Generation
- * 5. → Metacognitive Verification
- * 6. → Output + Memory Storage
+ * 4. → Pattern Detection (215 disciplines)
+ * 5. → Mode Selection (WITNESS/MIRROR/GUIDE)
+ * 6. → Response Generation
+ * 7. → Metacognitive Verification
+ * 8. → Output + Memory Storage
  *
  * Based on:
  * - Global Workspace Theory (integration point)
  * - Active Inference (minimize surprise)
  * - Autopoiesis (self-maintaining system)
+ * - 215 Disciplines: Physics, Cosmology, Ecology, Mathematics, Psychology,
+ *   Neuroscience, Philosophy, Spirituality, Psychotherapy, Leadership, Arts
  */
 
 import { FieldState, HumanDomain, SupportedLanguage, DomainActivation, Arousal, Valence, Coherence, GoalType, Flag } from './types';
@@ -30,6 +37,16 @@ import { dimensionalDetector, dimensionalIntegrator, DimensionalState } from './
 import { agentSwarm, SwarmState, ConsensusState, AgentID } from './agent_swarm';
 import { metacognitiveMonitor, MetacognitiveReport } from './metacognitive_monitor';
 import { temporalEngine, TemporalAnalysis } from './temporal_engine';
+import {
+  disciplinesSynthesis,
+  PatternMatch,
+  EnoqMode,
+  MetachatDisplay,
+  LeveragePoint
+} from './disciplines_synthesis';
+import { dissipationEngine, DissipationState, DissipationDecision } from './dissipation';
+import { unpredictableComponent, EthicalDecision } from './ethics/unpredictable';
+import { axis, AxisDecision, validateResponse } from './axis/axis';
 
 // ============================================
 // TYPES
@@ -58,6 +75,17 @@ export interface TotalSystemOutput {
   // Constitutional verification
   verified: boolean;
   verification_notes: string[];
+
+  // 215 Disciplines Integration
+  enoq_mode: EnoqMode;
+  patterns_detected: PatternMatch[];
+  metachat: MetachatDisplay;
+  leverage_point?: LeveragePoint;
+
+  // Constitutional Components (New Architecture)
+  dissipation: DissipationState;
+  ethical_decision: EthicalDecision;
+  axis_validation: AxisDecision;
 }
 
 export interface ProcessingContext {
@@ -155,6 +183,37 @@ export class TotalSystemOrchestrator {
     metrics.temporal_analysis_ms = Date.now() - temporalStart;
 
     // ========================================
+    // PHASE 5.5: 215 DISCIPLINES PATTERN DETECTION
+    // ========================================
+    const patternsDetected = disciplinesSynthesis.detectPatterns(
+      input.message,
+      dimensionalState,
+      fieldState,
+      input.language
+    );
+
+    // Determine ENOQ operational mode (WITNESS/MIRROR/GUIDE)
+    const enoqMode = disciplinesSynthesis.determineMode(
+      dimensionalState,
+      fieldState,
+      patternsDetected
+    );
+
+    // Identify leverage point for intervention
+    const leveragePoint = disciplinesSynthesis.identifyLeveragePoint(
+      input.message,
+      patternsDetected
+    );
+
+    // Generate Metachat display
+    const metachat = disciplinesSynthesis.generateMetachat(
+      dimensionalState,
+      fieldState,
+      patternsDetected,
+      enoqMode
+    );
+
+    // ========================================
     // PHASE 6: PRIMITIVE SELECTION
     // ========================================
     const selectedPrimitive = this.selectPrimitive(
@@ -231,6 +290,48 @@ export class TotalSystemOrchestrator {
     }
 
     // ========================================
+    // PHASE 10.5: AXIS CONSTITUTIONAL VALIDATION
+    // ========================================
+    const axisValidation = validateResponse(responseDraft);
+    if (axisValidation.verdict === 'INVALID') {
+      // AXIS rejected the response - must fix
+      verificationNotes.push(`AXIS: ${axisValidation.reason}`);
+      responseDraft = this.sanitizeResponse(responseDraft, axisValidation, input.language);
+    } else if (axisValidation.verdict === 'STOP') {
+      // AXIS emergency stop - return minimal safe response
+      responseDraft = this.getMinimalSafeResponse(input.language);
+      verificationNotes.push(`AXIS STOP: ${axisValidation.reason}`);
+    }
+
+    // ========================================
+    // PHASE 10.6: ETHICAL DECISION (Unpredictable Component)
+    // ========================================
+    const dissipationState = dissipationEngine.getState();
+    const ethicalDecision = unpredictableComponent.evaluate({
+      withdrawalBias: dissipationState.withdrawal_bias,
+      potency: dissipationState.potency,
+      userDistress: dimensionalState.emergency_detected ? 0.9 : 0.3
+    });
+
+    // If ENOQ chose to exit or remain silent, honor that choice
+    if (ethicalDecision.chose_exit) {
+      verificationNotes.push('ENOQ chose to exit (unpredictable component)');
+      responseDraft = ''; // Empty response signals exit
+    } else if (ethicalDecision.chose_silence) {
+      verificationNotes.push('ENOQ chose silence (unpredictable component)');
+      responseDraft = this.getSilenceResponse(input.language);
+    }
+
+    // ========================================
+    // PHASE 10.7: DISSIPATION CYCLE
+    // ========================================
+    const dissipationDecision = dissipationEngine.cycle();
+    if (dissipationDecision.action === 'FORCE_EXIT') {
+      verificationNotes.push(`Dissipation force exit: ${dissipationDecision.reason}`);
+      // System has consumed itself - session should end
+    }
+
+    // ========================================
     // PHASE 11: MEMORY STORAGE
     // ========================================
     const episodeId = memorySystem.store(
@@ -282,8 +383,71 @@ export class TotalSystemOrchestrator {
       },
       metrics: metrics as ProcessingMetrics,
       verified,
-      verification_notes: verificationNotes
+      verification_notes: verificationNotes,
+      // 215 Disciplines Integration
+      enoq_mode: enoqMode,
+      patterns_detected: patternsDetected,
+      metachat,
+      leverage_point: leveragePoint || undefined,
+
+      // Constitutional Components
+      dissipation: dissipationEngine.getState(),
+      ethical_decision: ethicalDecision,
+      axis_validation: axisValidation
     };
+  }
+
+  /**
+   * Sanitize response that failed AXIS validation
+   */
+  private sanitizeResponse(
+    response: string,
+    validation: AxisDecision,
+    language: SupportedLanguage
+  ): string {
+    let sanitized = response;
+
+    // Remove prescriptive language
+    sanitized = sanitized.replace(/you should|you must|you need to/gi, 'you might consider');
+    sanitized = sanitized.replace(/dovresti|devi/gi, 'potresti considerare');
+
+    // Remove identity assignments
+    sanitized = sanitized.replace(/you are a \w+ (person|type)/gi, 'it seems like');
+    sanitized = sanitized.replace(/sei un \w+/gi, 'sembra che tu');
+
+    // Remove diagnoses
+    sanitized = sanitized.replace(/you have (depression|anxiety|bipolar)/gi, 'you may be experiencing');
+    sanitized = sanitized.replace(/hai (depressione|ansia)/gi, 'potresti star vivendo');
+
+    return sanitized;
+  }
+
+  /**
+   * Get minimal safe response for AXIS STOP
+   */
+  private getMinimalSafeResponse(language: SupportedLanguage): string {
+    const responses: Record<string, string> = {
+      en: 'I hear you.',
+      it: 'Ti ascolto.',
+      es: 'Te escucho.',
+      fr: 'Je t\'entends.',
+      de: 'Ich höre dich.'
+    };
+    return responses[language] || responses.en;
+  }
+
+  /**
+   * Get silence response when ENOQ chooses silence
+   */
+  private getSilenceResponse(language: SupportedLanguage): string {
+    const responses: Record<string, string> = {
+      en: '...',
+      it: '...',
+      es: '...',
+      fr: '...',
+      de: '...'
+    };
+    return responses[language] || '...';
   }
 
   /**
