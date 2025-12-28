@@ -71,6 +71,12 @@ import {
   diagnostics as manifoldDiagnostics,
   FieldDiagnostics
 } from './stochastic_field';
+import {
+  curveSelectionWithManifold,
+  CurvatureResult,
+  CurvatureEntry,
+  getCurvatureSeverity
+} from './selection_curver';
 
 // ============================================
 // PIPELINE CONFIG
@@ -206,6 +212,9 @@ export interface PipelineTrace {
     S: number;             // Entropy
     d_identity: number;    // Distance to identity boundary
     absorbed: boolean;     // Hit absorbing boundary (emergency)
+    curvature_severity: number;  // 0-1, how much field curved selection
+    curvature_applied: string[];  // Which curvatures were applied
+    physics_reasoning: string;    // Physics-based explanation
   };
 
   // Timing
@@ -744,7 +753,7 @@ export async function enoq(
       undefined, // fieldTraceInfo
       detectorOutput,
       dimensionalState,
-      { diagnostics: stochasticDiagnostics, manifold: session.manifold_state, absorbed: stochasticEvolution.absorbed }
+      { diagnostics: stochasticDiagnostics, manifold: session.manifold_state, absorbed: stochasticEvolution.absorbed, curvature: undefined }
     );
 
     const turn: Turn = {
@@ -781,7 +790,7 @@ export async function enoq(
       undefined, // fieldTraceInfo
       detectorOutput,
       dimensionalState,
-      { diagnostics: stochasticDiagnostics, manifold: session.manifold_state, absorbed: stochasticEvolution.absorbed }
+      { diagnostics: stochasticDiagnostics, manifold: session.manifold_state, absorbed: stochasticEvolution.absorbed, curvature: undefined }
     );
 
     const turn: Turn = {
@@ -826,6 +835,30 @@ export async function enoq(
     }
     if (fieldResponse.suggests_withdrawal) {
       console.log(`[FIELD] Suggests withdrawal`);
+    }
+  }
+
+  // ==========================================
+  // S3.55: STOCHASTIC FIELD CURVATURE
+  // Langevin dynamics → Selection constraints
+  // Closes feedback loop: field evolves → selection curves
+  // ==========================================
+
+  const stochasticCurvature = curveSelectionWithManifold(
+    s3_selection,
+    session.manifold_state,
+    stochasticDiagnostics
+  );
+  s3_selection = stochasticCurvature.selection;
+
+  // Log stochastic curvature for debugging
+  if (process.env.ENOQ_DEBUG) {
+    const severity = getCurvatureSeverity(session.manifold_state, stochasticDiagnostics);
+    if (stochasticCurvature.curvature_applied.length > 0) {
+      console.log(`[STOCHASTIC CURVATURE] Severity: ${(severity * 100).toFixed(0)}%`);
+      for (const c of stochasticCurvature.curvature_applied) {
+        console.log(`[STOCHASTIC CURVATURE] ${c.source}: ${c.action}`);
+      }
     }
   }
 
@@ -884,7 +917,10 @@ export async function enoq(
   }
 
   // Apply Governor constraints to selection
-  if (s1_governor.effect.atmosphere) {
+  // BUT: V_MODE and EMERGENCY atmospheres from stochastic/dimensional detection take precedence
+  if (s1_governor.effect.atmosphere &&
+      s3_selection.atmosphere !== 'V_MODE' &&
+      s3_selection.atmosphere !== 'EMERGENCY') {
     s3_selection.atmosphere = s1_governor.effect.atmosphere;
   }
   if (s1_governor.effect.mode) {
@@ -909,8 +945,11 @@ export async function enoq(
   // ==========================================
 
   if (gateEffect.atmosphere_hint) {
-    // Gate atmosphere takes precedence (it's the first signal)
-    s3_selection.atmosphere = gateEffect.atmosphere_hint;
+    // Gate atmosphere hints, but V_MODE/EMERGENCY from stochastic/dimensional detection take precedence
+    // (they are more calibrated than keyword-based Gate)
+    if (s3_selection.atmosphere !== 'V_MODE' && s3_selection.atmosphere !== 'EMERGENCY') {
+      s3_selection.atmosphere = gateEffect.atmosphere_hint;
+    }
   }
 
   if (gateEffect.depth_ceiling) {
@@ -1017,7 +1056,7 @@ export async function enoq(
     getFieldTraceInfo(fieldResponse),
     detectorOutput,
     dimensionalState,
-    { diagnostics: stochasticDiagnostics, manifold: session.manifold_state, absorbed: stochasticEvolution.absorbed }
+    { diagnostics: stochasticDiagnostics, manifold: session.manifold_state, absorbed: stochasticEvolution.absorbed, curvature: stochasticCurvature }
   );
 
   const turn: Turn = {
@@ -1044,6 +1083,7 @@ interface StochasticTraceInfo {
   diagnostics: FieldDiagnostics;
   manifold: ManifoldState;
   absorbed: boolean;
+  curvature?: CurvatureResult;
 }
 
 function createTrace(
@@ -1114,6 +1154,15 @@ function createTrace(
       S: stochasticInfo.diagnostics.S,
       d_identity: stochasticInfo.diagnostics.d_identity,
       absorbed: stochasticInfo.absorbed,
+      curvature_severity: stochasticInfo.curvature
+        ? getCurvatureSeverity(stochasticInfo.manifold, stochasticInfo.diagnostics)
+        : 0,
+      curvature_applied: stochasticInfo.curvature
+        ? stochasticInfo.curvature.curvature_applied.map(c => c.action)
+        : [],
+      physics_reasoning: stochasticInfo.curvature
+        ? stochasticInfo.curvature.physics_reasoning
+        : 'No curvature applied',
     } : undefined,
     s6_output: output,
     latency_ms: latencyMs,
@@ -1195,6 +1244,12 @@ export async function conversationLoop(): Promise<void> {
           console.log(`Stochastic: γ=${lastTrace.s3_stochastic.gamma.toFixed(3)}, δ=${lastTrace.s3_stochastic.delta.toFixed(3)}, d_I=${lastTrace.s3_stochastic.d_identity.toFixed(3)}`);
           if (lastTrace.s3_stochastic.absorbed) {
             console.log(`Stochastic: ABSORBED (emergency grounding)`);
+          }
+          if (lastTrace.s3_stochastic.curvature_severity > 0) {
+            console.log(`Curvature: severity=${(lastTrace.s3_stochastic.curvature_severity * 100).toFixed(0)}%`);
+            for (const action of lastTrace.s3_stochastic.curvature_applied) {
+              console.log(`  → ${action}`);
+            }
           }
         }
         console.log(`Runtime: ${lastTrace.s4_context.runtime}`);
