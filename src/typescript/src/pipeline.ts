@@ -641,7 +641,19 @@ export async function enoq(
   // dq = -∇U dt/(1+γ) + √(2D) dB_H
   // ==========================================
 
-  const stochasticInput = fieldStateToInputState(s1_field, s0_input);
+  // Create stochastic input, incorporating dimensional detection results
+  const baseStochasticInput = fieldStateToInputState(s1_field, s0_input);
+  const stochasticInput: InputState = {
+    ...baseStochasticInput,
+    // Override with dimensional detection (more accurate than L1 domains alone)
+    existential_load: dimensionalState.v_mode_triggered
+      ? Math.max(baseStochasticInput.existential_load, 0.8)
+      : baseStochasticInput.existential_load,
+    somatic_activation: dimensionalState.emergency_detected
+      ? Math.max(baseStochasticInput.somatic_activation, 0.9)  // Force above threshold
+      : baseStochasticInput.somatic_activation,
+  };
+
   const stochasticEvolution = evolveManifold(
     session.manifold_state,
     stochasticInput,
