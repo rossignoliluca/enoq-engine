@@ -77,6 +77,12 @@ import {
   CurvatureEntry,
   getCurvatureSeverity
 } from './selection_curver';
+import {
+  getRegulatoryStore,
+  RegulatoryState,
+  createDefaultState as createDefaultRegulatoryState,
+  IRegulatoryStore
+} from './regulatory_store';
 
 // ============================================
 // PIPELINE CONFIG
@@ -95,6 +101,11 @@ export interface PipelineConfig {
   // Ultimate Detector config (default: true for 100% accuracy)
   use_ultimate_detector?: boolean;
   ultimate_detector_debug?: boolean;
+
+  // Regulatory Store config (cross-session state)
+  // If user_id provided, loads/saves regulatory state across sessions
+  user_id?: string;
+  regulatory_store_enabled?: boolean;
 }
 
 const DEFAULT_PIPELINE_CONFIG: PipelineConfig = {
@@ -104,6 +115,7 @@ const DEFAULT_PIPELINE_CONFIG: PipelineConfig = {
   gate_timeout_ms: 1000,
   use_ultimate_detector: true, // Default to ultimate detector (100% accuracy)
   ultimate_detector_debug: Boolean(process.env.ENOQ_DEBUG),
+  regulatory_store_enabled: true, // Default to enabled for cross-session learning
 };
 
 // Ultimate detector singleton (lazy init)
@@ -115,6 +127,7 @@ let ultimateDetector: UltimateDetector | null = null;
 
 export interface Session {
   session_id: string;
+  user_id?: string;  // Optional: enables cross-session regulatory state
   created_at: Date;
   turns: Turn[];
 
@@ -123,6 +136,9 @@ export interface Session {
 
   // Stochastic field state (Langevin dynamics)
   manifold_state: ManifoldState;
+
+  // Cross-session regulatory state (loaded from store if user_id provided)
+  regulatory_state?: RegulatoryState;
 
   // Telemetry
   telemetry: SessionTelemetry;
@@ -217,6 +233,15 @@ export interface PipelineTrace {
     physics_reasoning: string;    // Physics-based explanation
   };
 
+  // Cross-session regulatory state (autonomy tracking)
+  s1_regulatory?: {
+    potency: number;           // Intervention capacity (0-1)
+    withdrawal_bias: number;   // System withdrawal tendency (0-1)
+    delegation_trend: number;  // -1 (delegating) to +1 (independent)
+    loop_count: number;        // Repetitive pattern count
+    constraints_applied: string[];  // How regulatory state curved selection
+  };
+
   // Timing
   latency_ms: number;
 }
@@ -260,13 +285,35 @@ export type PipelineState =
 // SESSION MANAGEMENT
 // ============================================
 
-export function createSession(): Session {
+export function createSession(userId?: string): Session {
+  // Load regulatory state from store if user_id provided
+  let regulatoryState: RegulatoryState | undefined;
+  if (userId) {
+    const store = getRegulatoryStore();
+    const existing = store.get(userId);
+    if (existing) {
+      regulatoryState = existing;
+      if (process.env.ENOQ_DEBUG) {
+        console.log(`[REGULATORY] Loaded state for ${userId}: potency=${existing.potency.toFixed(2)}, withdrawal=${existing.withdrawal_bias.toFixed(2)}, trend=${existing.delegation_trend.toFixed(2)}`);
+      }
+    } else {
+      // Create new regulatory state for this user
+      regulatoryState = createDefaultRegulatoryState(userId);
+      store.save(regulatoryState);
+      if (process.env.ENOQ_DEBUG) {
+        console.log(`[REGULATORY] Created new state for ${userId}`);
+      }
+    }
+  }
+
   return {
     session_id: `sess_${Date.now().toString(36)}_${Math.random().toString(36).substr(2, 9)}`,
+    user_id: userId,
     created_at: new Date(),
     turns: [],
     meta_kernel_state: createDefaultMetaKernelState(),
     manifold_state: createInitialManifoldState(),  // Stochastic field initial state
+    regulatory_state: regulatoryState,  // Cross-session regulatory state
     telemetry: createDefaultTelemetry(),
     audit_trail: [],
     memory: {
@@ -753,7 +800,8 @@ export async function enoq(
       undefined, // fieldTraceInfo
       detectorOutput,
       dimensionalState,
-      { diagnostics: stochasticDiagnostics, manifold: session.manifold_state, absorbed: stochasticEvolution.absorbed, curvature: undefined }
+      { diagnostics: stochasticDiagnostics, manifold: session.manifold_state, absorbed: stochasticEvolution.absorbed, curvature: undefined },
+      session.regulatory_state ? { state: session.regulatory_state, constraints_applied: [] } : undefined
     );
 
     const turn: Turn = {
@@ -790,7 +838,8 @@ export async function enoq(
       undefined, // fieldTraceInfo
       detectorOutput,
       dimensionalState,
-      { diagnostics: stochasticDiagnostics, manifold: session.manifold_state, absorbed: stochasticEvolution.absorbed, curvature: undefined }
+      { diagnostics: stochasticDiagnostics, manifold: session.manifold_state, absorbed: stochasticEvolution.absorbed, curvature: undefined },
+      session.regulatory_state ? { state: session.regulatory_state, constraints_applied: [] } : undefined
     );
 
     const turn: Turn = {
@@ -858,6 +907,79 @@ export async function enoq(
       console.log(`[STOCHASTIC CURVATURE] Severity: ${(severity * 100).toFixed(0)}%`);
       for (const c of stochasticCurvature.curvature_applied) {
         console.log(`[STOCHASTIC CURVATURE] ${c.source}: ${c.action}`);
+      }
+    }
+  }
+
+  // ==========================================
+  // S3.57: REGULATORY CONSTRAINTS
+  // Cross-session autonomy tracking → Selection constraints
+  // System withdrawal as user becomes independent
+  // ==========================================
+
+  const regulatoryConstraints: string[] = [];
+
+  if (session.regulatory_state) {
+    const reg = session.regulatory_state;
+
+    // High withdrawal_bias → System should withdraw, reduce depth
+    if (reg.withdrawal_bias > 0.7) {
+      s3_selection.depth = 'surface';
+      regulatoryConstraints.push(`High withdrawal (${(reg.withdrawal_bias * 100).toFixed(0)}%): forced surface`);
+    } else if (reg.withdrawal_bias > 0.4) {
+      const depthOrder: ('surface' | 'medium' | 'deep')[] = ['surface', 'medium', 'deep'];
+      const currentIdx = depthOrder.indexOf(s3_selection.depth);
+      if (currentIdx > 0) {
+        s3_selection.depth = depthOrder[currentIdx - 1];
+        regulatoryConstraints.push(`Moderate withdrawal (${(reg.withdrawal_bias * 100).toFixed(0)}%): reduced depth to ${s3_selection.depth}`);
+      }
+    }
+
+    // Low potency → System has limited intervention capacity
+    if (reg.potency < 0.3) {
+      s3_selection.depth = 'surface';
+      s3_selection.length = 'minimal';
+      regulatoryConstraints.push(`Low potency (${(reg.potency * 100).toFixed(0)}%): minimal intervention`);
+    } else if (reg.potency < 0.6) {
+      if (s3_selection.length === 'moderate') {
+        s3_selection.length = 'brief';
+      }
+      regulatoryConstraints.push(`Reduced potency (${(reg.potency * 100).toFixed(0)}%): brief responses`);
+    }
+
+    // Positive delegation_trend (user becoming independent) → Allow exploration, reduce prescription
+    if (reg.delegation_trend > 0.5) {
+      s3_selection.forbidden = [...new Set([
+        ...s3_selection.forbidden,
+        'prescribe',
+        'direct_advice'
+      ])];
+      regulatoryConstraints.push(`High independence (trend=${reg.delegation_trend.toFixed(2)}): reduced prescription`);
+    }
+
+    // Negative delegation_trend (user delegating more) → Be careful, may need V_MODE
+    if (reg.delegation_trend < -0.5 && s3_selection.atmosphere !== 'EMERGENCY') {
+      s3_selection.required = [...new Set([
+        ...s3_selection.required,
+        'return_ownership'
+      ])];
+      regulatoryConstraints.push(`High delegation (trend=${reg.delegation_trend.toFixed(2)}): ownership return required`);
+    }
+
+    // High loop_count → Already handled in stochastic field, but reinforce
+    if (reg.loop_count > 5) {
+      s3_selection.required = [...new Set([
+        ...s3_selection.required,
+        'break_pattern'
+      ])];
+      regulatoryConstraints.push(`Loop detected (${reg.loop_count}): pattern break required`);
+    }
+
+    // Log regulatory constraints
+    if (process.env.ENOQ_DEBUG && regulatoryConstraints.length > 0) {
+      console.log(`[REGULATORY] Constraints applied:`);
+      for (const c of regulatoryConstraints) {
+        console.log(`[REGULATORY]   ${c}`);
       }
     }
   }
@@ -1056,7 +1178,8 @@ export async function enoq(
     getFieldTraceInfo(fieldResponse),
     detectorOutput,
     dimensionalState,
-    { diagnostics: stochasticDiagnostics, manifold: session.manifold_state, absorbed: stochasticEvolution.absorbed, curvature: stochasticCurvature }
+    { diagnostics: stochasticDiagnostics, manifold: session.manifold_state, absorbed: stochasticEvolution.absorbed, curvature: stochasticCurvature },
+    session.regulatory_state ? { state: session.regulatory_state, constraints_applied: regulatoryConstraints } : undefined
   );
 
   const turn: Turn = {
@@ -1067,6 +1190,50 @@ export async function enoq(
     trace,
   };
   session.turns.push(turn);
+
+  // ==========================================
+  // UPDATE REGULATORY STATE (Cross-session learning)
+  // ==========================================
+
+  if (session.regulatory_state && session.user_id) {
+    const reg = session.regulatory_state;
+    const now = Date.now();
+
+    // Update delegation_trend based on this turn's behavior
+    if (s1_field.flags.includes('delegation_attempt')) {
+      // User delegating → trend becomes more negative
+      reg.delegation_trend = Math.max(-1, reg.delegation_trend - 0.1);
+    }
+    if (session.telemetry.user_made_decision) {
+      // User made decision → trend becomes more positive
+      reg.delegation_trend = Math.min(1, reg.delegation_trend + 0.15);
+    }
+
+    // Update withdrawal_bias based on V_MODE triggers
+    if (dimensionalState.v_mode_triggered) {
+      // V_MODE triggered → slight increase in withdrawal bias
+      reg.withdrawal_bias = Math.min(1, reg.withdrawal_bias + 0.05);
+    }
+
+    // Update loop_count from field state
+    reg.loop_count = s1_field.loop_count;
+
+    // Decay potency slightly each turn (regenerates when not in use)
+    reg.potency = Math.max(0.1, reg.potency - 0.02);
+
+    // Update timestamps
+    reg.last_interaction = now;
+    reg.expires_at = now + 24 * 60 * 60 * 1000;  // 24h TTL
+
+    // Save to store
+    const store = getRegulatoryStore();
+    store.save(reg);
+
+    // Log regulatory update
+    if (process.env.ENOQ_DEBUG) {
+      console.log(`[REGULATORY] Updated: potency=${reg.potency.toFixed(2)}, withdrawal=${reg.withdrawal_bias.toFixed(2)}, trend=${reg.delegation_trend.toFixed(2)}`);
+    }
+  }
 
   return {
     output: finalOutput,
@@ -1086,6 +1253,11 @@ interface StochasticTraceInfo {
   curvature?: CurvatureResult;
 }
 
+interface RegulatoryTraceInfo {
+  state: RegulatoryState;
+  constraints_applied: string[];
+}
+
 function createTrace(
   input: string,
   field: FieldState,
@@ -1102,7 +1274,8 @@ function createTrace(
   fieldTraceInfo?: FieldTraceInfo,
   detectorOutput?: DetectorOutput | null,
   dimensionalState?: DimensionalState,
-  stochasticInfo?: StochasticTraceInfo
+  stochasticInfo?: StochasticTraceInfo,
+  regulatoryInfo?: RegulatoryTraceInfo
 ): PipelineTrace {
   return {
     s0_gate: gateResult ? {
@@ -1163,6 +1336,13 @@ function createTrace(
       physics_reasoning: stochasticInfo.curvature
         ? stochasticInfo.curvature.physics_reasoning
         : 'No curvature applied',
+    } : undefined,
+    s1_regulatory: regulatoryInfo ? {
+      potency: regulatoryInfo.state.potency,
+      withdrawal_bias: regulatoryInfo.state.withdrawal_bias,
+      delegation_trend: regulatoryInfo.state.delegation_trend,
+      loop_count: regulatoryInfo.state.loop_count,
+      constraints_applied: regulatoryInfo.constraints_applied,
     } : undefined,
     s6_output: output,
     latency_ms: latencyMs,
@@ -1249,6 +1429,16 @@ export async function conversationLoop(): Promise<void> {
             console.log(`Curvature: severity=${(lastTrace.s3_stochastic.curvature_severity * 100).toFixed(0)}%`);
             for (const action of lastTrace.s3_stochastic.curvature_applied) {
               console.log(`  → ${action}`);
+            }
+          }
+        }
+        // Regulatory state info
+        if (lastTrace.s1_regulatory) {
+          console.log(`Regulatory: potency=${(lastTrace.s1_regulatory.potency * 100).toFixed(0)}%, withdrawal=${(lastTrace.s1_regulatory.withdrawal_bias * 100).toFixed(0)}%, trend=${lastTrace.s1_regulatory.delegation_trend.toFixed(2)}`);
+          if (lastTrace.s1_regulatory.constraints_applied.length > 0) {
+            console.log(`Regulatory constraints:`);
+            for (const c of lastTrace.s1_regulatory.constraints_applied) {
+              console.log(`  → ${c}`);
             }
           }
         }
