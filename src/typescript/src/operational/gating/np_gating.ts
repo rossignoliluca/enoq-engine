@@ -1,7 +1,7 @@
 /**
  * NP-CALIBRATED GATING - v5.0 Runtime Component
  *
- * PROMOTED FROM: research/cognitive_router/definitive_gating.ts
+ * Origin: research module (now canonical)
  *
  * NP-calibrated threshold gating with lexicon boost.
  * Provides optimal LLM call reduction while maintaining recall target.

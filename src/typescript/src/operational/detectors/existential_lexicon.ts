@@ -1,7 +1,7 @@
 /**
  * EXISTENTIAL LEXICON - Meaning-Collapse / Totalization Markers
  *
- * PROMOTED FROM: research/cognitive_router/existential_lexicon.ts
+ * Origin: research module (now canonical)
  * VERSION: v5.0
  *
  * These markers detect "everyday language" existential content that

@@ -5,11 +5,11 @@
  * to evaluate their performance before promotion to runtime.
  *
  * Usage:
- *   npx ts-node research/cognitive_router/benchmark_runner.ts
+ *   npx ts-node src/experimental/cognitive_router/benchmark_runner.ts
  *
  * Output:
  *   - Console summary
- *   - JSON artifacts in research/artifacts/
+ *   - JSON artifacts in experimental/artifacts/
  */
 
 import * as fs from 'fs';
