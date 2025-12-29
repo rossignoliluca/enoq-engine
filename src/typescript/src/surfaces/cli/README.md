@@ -41,6 +41,44 @@ FAST PATH is for task execution (email drafts, not reflection). The geometry is 
 
 ---
 
+### `enoq relation` (v7.0)
+
+Second traversal. Maps a human relationship. No coaching. No advice.
+
+```bash
+npx ts-node src/surfaces/cli/relation.ts
+```
+
+**Input:**
+- Person A (self)
+- Person B (other)
+- Context (work/family/friendship/other)
+- Current tension or situation
+- Boundary (what must NOT be crossed)
+
+**Output:**
+- Role Map (what roles A and B occupy)
+- Tension Axes (2-3 descriptive axes)
+- Boundary Lines (what A controls, doesn't control, where responsibility returns)
+- Minimal Next Act (optional, descriptive only)
+- STOP (no follow-up)
+
+**Rules (AXIS enforced):**
+- No relational advice
+- No strategy or optimization
+- No framing B as problem
+- No "you should" language
+- Descriptive only
+- Mandatory STOP after output
+
+**Architecture: FAST PATH**
+
+```
+permit() → act(callLLM) → verify → stop
+```
+
+---
+
 ## Legacy
 
 The interactive session (`cli.ts`) re-exports from `runtime/io/`:
