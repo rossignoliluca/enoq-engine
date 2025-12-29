@@ -1,14 +1,13 @@
 /**
  * CORE ORCHESTRATOR - Canonical Entry Point
  *
- * Slice 1 of wiring migration: wrapper over runtime/pipeline.
- * Zero logic change, just establishes core as the import target.
+ * Slice 2 of wiring migration: uses core/modules for boundary + verification.
  *
  * STATES (per README):
  * PERMIT → SENSE → CLARIFY → PLAN → ACT → VERIFY → STOP
  *
- * CURRENT: Delegates entirely to runtime/enoq()
- * FUTURE: Will orchestrate core/modules directly
+ * CURRENT: Core boundary + verification, runtime for middle processing
+ * FUTURE: Will orchestrate all core/modules directly
  */
 
 import {
@@ -18,6 +17,16 @@ import {
   PipelineResult,
   PipelineConfig,
 } from '../../runtime/pipeline/pipeline';
+
+import {
+  permit,
+  BoundaryDecision,
+} from '../modules/boundary';
+
+import {
+  verifyOutput,
+  VerificationDecision,
+} from '../modules/verification';
 
 // ============================================
 // SIGNALS (stubs for now)
@@ -69,23 +78,32 @@ function createSignalEmitter(): SignalEmitter {
 export interface CoreConfig extends Partial<PipelineConfig> {
   /** Enable signal emission (default: true) */
   signals_enabled?: boolean;
+  /** Enable core boundary classification (default: true) */
+  boundary_enabled?: boolean;
+  /** Enable core verification (default: true) */
+  verification_enabled?: boolean;
 }
 
 export interface CoreResult extends PipelineResult {
   /** Signal history for this invocation */
   signals: PipelineSignal[];
+  /** Boundary classification decision (Slice 2) */
+  boundary?: BoundaryDecision;
+  /** Verification decision (Slice 2) */
+  verification?: VerificationDecision;
 }
 
 /**
  * enoqCore - Canonical entry point for ENOQ processing
  *
- * This is the wrapper that will eventually orchestrate core/modules.
- * Currently delegates to runtime/enoq() while emitting state signals.
+ * Slice 2: Uses core/modules for boundary classification.
+ * Delegates middle processing to runtime/enoq().
+ * Verification runs post-runtime if field/selection available.
  *
  * @param message - User input
  * @param session - Session context (use createCoreSession())
  * @param config - Pipeline configuration
- * @returns CoreResult with response, trace, and signals
+ * @returns CoreResult with response, trace, signals, and boundary decision
  */
 export async function enoqCore(
   message: string,
@@ -94,13 +112,35 @@ export async function enoqCore(
 ): Promise<CoreResult> {
   const emitter = createSignalEmitter();
   const signalsEnabled = config.signals_enabled !== false;
+  const boundaryEnabled = config.boundary_enabled !== false;
+  const verificationEnabled = config.verification_enabled !== false;
 
-  // PERMIT - Entry check (stub: always permits for now)
-  if (signalsEnabled) {
-    emitter.emit({ state: 'PERMIT', timestamp: Date.now() });
+  // ========================================
+  // PERMIT - Core boundary classification
+  // ========================================
+  let boundaryDecision: BoundaryDecision | undefined;
+
+  if (boundaryEnabled) {
+    boundaryDecision = permit(message, {
+      session_id: session.session_id,
+      turn_number: session.turns.length,
+    });
   }
 
-  // SENSE through VERIFY - Delegate to runtime
+  if (signalsEnabled) {
+    emitter.emit({
+      state: 'PERMIT',
+      timestamp: Date.now(),
+      metadata: boundaryDecision ? {
+        signal: boundaryDecision.classification.signal,
+        confidence: boundaryDecision.classification.confidence,
+      } : undefined,
+    });
+  }
+
+  // ========================================
+  // SENSE through ACT - Delegate to runtime
+  // ========================================
   if (signalsEnabled) {
     emitter.emit({ state: 'SENSE', timestamp: Date.now() });
   }
@@ -113,7 +153,38 @@ export async function enoqCore(
 
   const result = await runtimeEnoq(message, session, runtimeConfig);
 
+  // ========================================
+  // VERIFY - Core verification (if data available)
+  // ========================================
+  let verificationDecision: VerificationDecision | undefined;
+
+  if (verificationEnabled && result.trace?.s3_selection && result.trace?.s1_field) {
+    if (signalsEnabled) {
+      emitter.emit({ state: 'VERIFY', timestamp: Date.now() });
+    }
+
+    // Extract language from field (LanguageDetectionResult is the language itself)
+    const fieldLang = result.trace.s1_field.language;
+    const detectedLang = (fieldLang === 'mixed' || fieldLang === 'unknown' || !fieldLang) ? 'en' : fieldLang;
+
+    verificationDecision = verifyOutput(
+      {
+        text: result.output,
+        field: result.trace.s1_field,
+        selection: result.trace.s3_selection,
+        language: detectedLang,
+      },
+      {
+        session_id: session.session_id,
+        turn_number: session.turns.length,
+        previous_hash: 'genesis',
+      }
+    );
+  }
+
+  // ========================================
   // STOP - Always reached
+  // ========================================
   if (signalsEnabled) {
     emitter.emit({ state: 'STOP', timestamp: Date.now() });
   }
@@ -121,6 +192,8 @@ export async function enoqCore(
   return {
     ...result,
     signals: emitter.getHistory(),
+    boundary: boundaryDecision,
+    verification: verificationDecision,
   };
 }
 

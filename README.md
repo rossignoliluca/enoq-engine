@@ -132,6 +132,8 @@ npx ts-node src/runtime/io/interactive_session.ts
 
 | Version | Date | Changes |
 |---------|------|---------|
+| **v6.7** | 2025-12-29 | Slice 2: core/modules/boundary + verification wired |
+| **v6.6** | 2025-12-29 | Slice 1: core orchestrator wrapper (enoqCore) |
 | **v6.5.1** | 2025-12-29 | Fix broken INDEX.md links |
 | **v6.5** | 2025-12-29 | Docs cleanup: 33 files → legacy, artifacts gitignored |
 | **v6.4.1** | 2025-12-29 | Fix SQLite clear() table name bug (618/618 tests) |
@@ -143,6 +145,10 @@ npx ts-node src/runtime/io/interactive_session.ts
 | **v6.0** | 2025-12-29 | AXIS constitutional freeze (12 axioms, 11 invariants) |
 
 ### Recent Details
+
+**v6.7**: Slice 2 wiring - `permit()` in boundary, `verifyOutput()` in verification, orchestrator uses core modules
+
+**v6.6**: Slice 1 wiring - `enoqCore()` canonical entry point wrapping runtime
 
 **v6.5**: Moved 33 unreferenced docs to `docs/legacy/`, added `artifacts/` to .gitignore
 
