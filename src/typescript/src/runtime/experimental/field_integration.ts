@@ -17,9 +17,9 @@
  */
 
 import { ProtocolSelection, FieldState as PipelineFieldState, Depth, Primitive } from '../../interface/types';
-import { Trajectory } from './attractor';
-import { SystemState } from './energy';
-import { field, FieldResponse } from './field';
+import { Trajectory } from '../../research/genesis/attractor';
+import { SystemState } from '../../research/genesis/energy';
+import { field, FieldResponse } from '../../research/genesis/field';
 
 // ============================================
 // TYPE MAPPINGS

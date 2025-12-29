@@ -431,3 +431,263 @@ export interface GateResult {
   latency_ms: number;
   error?: string;
 }
+
+// ============================================
+// DIMENSIONAL TYPES (Shared across modules)
+// ============================================
+
+export type VerticalDimension =
+  | 'SOMATIC'       // Body, sensation, energy, health
+  | 'FUNCTIONAL'    // Goals, problems, resources, actions
+  | 'RELATIONAL'    // Self-other, attachment, power, love
+  | 'EXISTENTIAL'   // Identity, death, freedom, isolation, meaning
+  | 'TRANSCENDENT'; // Purpose beyond self, connection to whole
+
+export interface IntegrationMetrics {
+  phi: number;        // 0-1, Φ-inspired measure
+  complexity: number; // How many dimensions are active
+  coherence: number;  // Do active dimensions make sense together
+  tension: number;    // Are there conflicting dimensions
+}
+
+export interface DimensionalState {
+  vertical: Record<VerticalDimension, number>;
+  horizontal: Record<HumanDomain, number>;
+  integration: IntegrationMetrics;
+  primary_vertical: VerticalDimension;
+  primary_horizontal: HumanDomain[];
+  v_mode_triggered: boolean;
+  emergency_detected: boolean;
+  cross_dimensional: boolean;
+}
+
+// ============================================
+// RISK FLAGS (Shared across modules)
+// ============================================
+
+export interface RiskFlags {
+  crisis: boolean;
+  emergency: boolean;
+  v_mode: boolean;
+  enchantment: boolean;
+  loop_detected: boolean;
+  boundary_approach: boolean;
+}
+
+// ============================================
+// ADS & MOTIVE (Anti-dependency metrics)
+// ============================================
+
+export interface MotiveDistribution {
+  genuine_incapacity: number;
+  time_saving_tooling: number;
+  time_saving_substitution: number;
+  emotional_offload: number;
+  decision_avoidance: number;
+  validation_seeking: number;
+  habit: number;
+}
+
+export interface ADSScore {
+  score: number;
+  avoidability: {
+    ability: number;
+    state: number;
+  };
+  motive_weight: number;
+  inertia: number;
+  final: number;
+}
+
+// ============================================
+// POLICY ADJUSTMENTS (Shared constraint modifiers)
+// ============================================
+
+export interface PolicyAdjustments {
+  budget_deltas?: Record<string, number>;
+  max_length?: number;
+  warmth_delta?: number;
+  brevity_delta?: number;
+  force_pronouns?: 'i_you' | 'we' | 'impersonal';
+  disable_tools?: boolean;
+  must_require_user_effort?: boolean;
+}
+
+export interface DelegationPrediction {
+  ads: ADSScore;
+  motive: MotiveDistribution;
+  should_intervene: boolean;
+  intervention_level: number;
+}
+
+// ============================================
+// REGIME CLASSIFICATION (LLM Detector output)
+// ============================================
+
+export interface ExistentialSpecificity {
+  identity: number;
+  meaning: number;
+  death: number;
+  freedom: number;
+  isolation: number;
+}
+
+export interface RegimeClassification {
+  regime: 'existential' | 'crisis' | 'relational' | 'functional' | 'somatic';
+  confidence: number;
+  existential: {
+    content_detected: boolean;
+    specificity: ExistentialSpecificity;
+    casual_work_context: boolean;
+  };
+  v_mode: {
+    triggered: boolean;
+    markers: string[];
+  };
+  emergency: {
+    triggered: boolean;
+    type?: 'panic' | 'self_harm' | 'acute_distress';
+  };
+  coherence: number;
+}
+
+// ============================================
+// RESPONSE PLAN TYPES (Shared contract)
+// ============================================
+
+/**
+ * Core speech act types available to LIMEN.
+ */
+export type SpeechActType =
+  | 'acknowledge'
+  | 'mirror'
+  | 'validate'
+  | 'map'
+  | 'experiment'
+  | 'question'
+  | 'boundary'
+  | 'redirect'
+  | 'ground'
+  | 'hold'
+  | 'name'
+  | 'offer_frame'
+  | 'return_agency';
+
+/**
+ * A single speech act with its parameters.
+ */
+export interface SpeechAct {
+  type: SpeechActType;
+  target?: string;
+  force: number;
+  conditions?: {
+    requires_prior?: SpeechActType;
+    requires_state?: 'regulated' | 'dysregulated' | 'unclear';
+  };
+}
+
+export type WarmthLevel = 'cold' | 'neutral' | 'warm' | 'very_warm';
+export type BrevityLevel = 'minimal' | 'brief' | 'moderate' | 'full';
+export type PronounStyle = 'i_you' | 'we' | 'impersonal';
+
+/**
+ * Constraints on how the response should be rendered.
+ */
+export interface PlanConstraints {
+  max_length: number;
+  warmth: WarmthLevel;
+  brevity: BrevityLevel;
+  pronouns: PronounStyle;
+  tools_allowed: boolean;
+  must_require_user_effort: boolean;
+  forbidden: ForbiddenAction[];
+  required: RequiredAction[];
+  language: SupportedLanguage;
+}
+
+/**
+ * Metadata attached to the plan.
+ */
+export interface PlanMetadata {
+  ads?: ADSScore;
+  motive?: MotiveDistribution;
+  risk: RiskFlags;
+  potency: number;
+  withdrawal_bias: number;
+  turn: number;
+  timestamp: number;
+}
+
+/**
+ * The ResponsePlan is the structured representation of what LIMEN will say.
+ */
+export interface ResponsePlan {
+  id: string;
+  acts: SpeechAct[];
+  constraints: PlanConstraints;
+  metadata: PlanMetadata;
+  confidence: number;
+  reasoning: string;
+  source: 'selection' | 'early_signals' | 'fallback';
+}
+
+/**
+ * S3a produces candidate plans, not strings.
+ */
+export interface CandidateSet {
+  candidates: ResponsePlan[];
+  recommended: number;
+  recommendation_reason: string;
+  generated_at: number;
+  generation_time_ms: number;
+}
+
+/**
+ * Reason codes for decisions.
+ */
+export type ReasonCode =
+  | 'early_signals_arrived'
+  | 'early_signals_timeout'
+  | 'early_signals_partial'
+  | 'candidate_selected_by_score'
+  | 'candidate_selected_by_early_signals'
+  | 'candidate_selected_by_fallback'
+  | 'constraint_added_by_governor'
+  | 'constraint_added_by_regulatory'
+  | 'constraint_added_by_dimensional'
+  | 'constraint_added_by_stochastic'
+  | 'constraint_added_by_second_order'
+  | 'veto_by_constitution'
+  | 'veto_by_swarm'
+  | 'veto_by_safety';
+
+/**
+ * A single decision event in the audit trail.
+ */
+export interface DecisionEvent {
+  timestamp: number;
+  code: ReasonCode;
+  details: string;
+  source: string;
+}
+
+/**
+ * Full observability record for a plan.
+ */
+export interface PlanObservability {
+  arrived_before_deadline: boolean;
+  signals_received: string[];
+  defaults_used: string[];
+  constraints_applied: DecisionEvent[];
+  veto_events: DecisionEvent[];
+  decision_time_ms: number;
+}
+
+/**
+ * Plan validation result.
+ */
+export interface PlanValidationResult {
+  valid: boolean;
+  violations: string[];
+  warnings: string[];
+}

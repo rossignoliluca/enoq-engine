@@ -20,11 +20,11 @@
  * - Cascading classifiers: Fast rules first, expensive later
  */
 
-import { DimensionalState } from '../../mediator/l0_intake/dimensional_system';
+import { DimensionalState } from '../../operational/detectors/dimensional_system';
 import { SupportedLanguage } from '../../interface/types';
 import { NPGating, NPGatingDecision, DEFAULT_NP_CONFIG } from './np_gating';
-import { LLMDetectorCache, CacheStats } from '../thresholds/llm_cache';
-import { RegimeClassification } from '../../mediator/l0_intake/llm_detector_v2';
+import { LLMDetectorCache, CacheStats } from '../../gate/thresholds/llm_cache';
+import { RegimeClassification } from '../../operational/detectors/llm_detector_v2';
 
 // ============================================
 // TYPES

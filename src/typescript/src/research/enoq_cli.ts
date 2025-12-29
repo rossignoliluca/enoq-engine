@@ -12,11 +12,11 @@
  */
 
 import * as readline from 'readline';
-import { createENOQ, field, creator } from '../../../research/genesis';
-import { GrownSystem } from '../../../research/genesis/grow';
-import { SystemState } from '../../../research/genesis/energy';
-import { Trajectory } from '../../../research/genesis/attractor';
-import { OpenAIConnector, GenerationResult } from '../../../research/genesis/llm';
+import { createENOQ, field, creator } from './genesis';
+import { GrownSystem } from './genesis/grow';
+import { SystemState } from './genesis/energy';
+import { Trajectory } from './genesis/attractor';
+import { OpenAIConnector, GenerationResult } from './genesis/llm';
 
 // ============================================
 // CONFIGURATION

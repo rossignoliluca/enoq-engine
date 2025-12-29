@@ -23,7 +23,7 @@
  * - Vovk (2005): Conformal quantile correction
  */
 
-import { DimensionalState, DimensionalDetector } from '../../mediator/l0_intake/dimensional_system';
+import { DimensionalState, DimensionalDetector } from '../../operational/detectors/dimensional_system';
 import { BENCHMARK_CASES, BenchmarkCase } from '../../benchmarks/cases/benchmark_cases';
 import { SupportedLanguage } from '../../interface/types';
 import { getBoostedExistentialScore, LexiconMatch } from './existential_lexicon';

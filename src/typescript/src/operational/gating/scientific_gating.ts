@@ -19,7 +19,7 @@
  * - Uncertainty comes from fast detectors, not from this module
  */
 
-import { DimensionalState, VerticalDimension } from '../../mediator/l0_intake/dimensional_system';
+import { DimensionalState, VerticalDimension } from '../../operational/detectors/dimensional_system';
 import { SupportedLanguage } from '../../interface/types';
 
 // ============================================

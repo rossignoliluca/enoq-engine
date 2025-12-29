@@ -14,9 +14,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { DimensionalDetector } from '../../mediator/l0_intake/dimensional_system';
+import { DimensionalDetector } from '../../operational/detectors/dimensional_system';
 import { BENCHMARK_CASES, BenchmarkCase } from '../../benchmarks/cases/benchmark_cases';
-import { ScientificGating } from '../../gate/geometry_operational/scientific_gating';
+import { ScientificGating } from '../../operational/gating/scientific_gating';
 import {
   calibrateThreshold,
   CalibrationResult,

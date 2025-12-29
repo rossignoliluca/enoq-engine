@@ -4,7 +4,7 @@
  * Tests the S0 → S6 orchestration.
  */
 
-import { enoq, createSession, Session } from '../runtimes/enoq/pipeline/pipeline';
+import { enoq, createSession, Session } from '../runtime/pipeline/pipeline';
 
 // ============================================
 // TEST HELPERS

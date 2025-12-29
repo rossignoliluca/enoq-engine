@@ -20,7 +20,7 @@
  * - Just gentle professional distance
  */
 
-import { PolicyAdjustments } from '../../mediator/l0_intake/early_signals';
+import { PolicyAdjustments } from '../../interface/types';
 
 // ============================================
 // SOFT-ONLY OUTPUT TYPE (enforced by design)

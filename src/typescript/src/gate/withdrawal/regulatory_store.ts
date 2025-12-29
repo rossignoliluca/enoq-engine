@@ -85,6 +85,8 @@ export interface IRegulatoryStore {
   purgeExpired(): number;
   getStats(): { subjects: number; dbSizeBytes: number };
   close(): void;
+  /** Clear all data (for testing) */
+  clear(): void;
 }
 
 // ============================================
@@ -135,6 +137,10 @@ export class InMemoryStore implements IRegulatoryStore {
   }
 
   close(): void {
+    this.store.clear();
+  }
+
+  clear(): void {
     this.store.clear();
   }
 }
@@ -281,6 +287,14 @@ export class SQLiteStore implements IRegulatoryStore {
   close(): void {
     this.db.close();
   }
+
+  clear(): void {
+    try {
+      this.db.exec('DELETE FROM regulatory_state');
+    } catch {
+      // Table might not exist yet, ignore
+    }
+  }
 }
 
 // ============================================
@@ -368,6 +382,12 @@ export class FallbackStore implements IRegulatoryStore {
     if (this.primary) this.primary.close();
     this.fallback.close();
   }
+
+  clear(): void {
+    if (this.primary) this.primary.clear();
+    this.fallback.clear();
+    this.pendingWrites = [];
+  }
 }
 
 // ============================================
@@ -385,6 +405,7 @@ export function getRegulatoryStore(config?: Partial<StoreConfig>): IRegulatorySt
 
 export function resetRegulatoryStore(): void {
   if (storeInstance) {
+    storeInstance.clear();  // Clear all data before closing
     storeInstance.close();
     storeInstance = null;
   }

@@ -6,7 +6,7 @@
  * - Call rate (how often we call LLM)
  */
 
-import { DimensionalDetector } from '../../mediator/l0_intake/dimensional_system';
+import { DimensionalDetector } from '../../operational/detectors/dimensional_system';
 import { BENCHMARK_CASES } from '../../benchmarks/cases/benchmark_cases';
 import { computeNonconformityScore } from './np_calibration';
 

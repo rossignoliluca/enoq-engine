@@ -1,7 +1,7 @@
-# ADR-006: GATE-MEDIATOR Architecture
+# ADR-006: GATE-MEDIATOR-OPERATIONAL Architecture
 
 ## Status
-Accepted
+Accepted (Updated 2024-12-28)
 
 ## Date
 2024-12-28
@@ -12,62 +12,100 @@ LIMEN is a cognitive control system. The previous structure mixed operational an
 
 ## Decision
 
-LIMEN is now composed of three primary subsystems:
+LIMEN is now composed of four primary subsystems:
 
 ```
 LIMEN (the system)
-├── GATE         - Normative gating & inhibitory control (thalamic-style)
-├── MEDIATOR     - Cognitive mediation engine (L0-L5)
-├── RUNTIMES     - Optional execution layers (e.g., ENOQ)
-└── INTERFACE    - Shared contracts and types
+├── INTERFACE    - Shared contracts and types
+├── GATE         - Normative gating & inhibitory control
+├── OPERATIONAL  - Routing, detection, gating decisions
+├── MEDIATOR     - Cognitive mediation engine (L1-L5)
+└── RUNTIME      - Execution layer (pipeline, IO)
 ```
+
+### INTERFACE (Contracts)
+- `interface/types.ts` - All shared type definitions
+  - DimensionalState, VerticalDimension, IntegrationMetrics
+  - RiskFlags, ADSScore, MotiveDistribution
+  - PolicyAdjustments, DelegationPrediction
+  - RegimeClassification, ExistentialSpecificity
 
 ### GATE (Normative Control)
 The gate provides inhibitory and regulatory control:
 - `gate/invariants/` - Constitutional constraints (axis.ts)
-- `gate/thresholds/` - Gating thresholds (llm_cache.ts)
-- `gate/emergency/` - Crisis detection and handling
-- `gate/withdrawal/` - Regulatory and lifecycle control
+- `gate/thresholds/` - LLM cache
+- `gate/emergency/` - Crisis detection
+- `gate/withdrawal/` - Lifecycle control, regulatory store
 - `gate/verification/` - S5 verification, plan-act verifier
-- `gate/geometry_normative/` - Domain governor, second-order observer, ADS detector
-- `gate/geometry_operational/` - Unified gating, NP gating, scientific gating
+- `gate/enforcement/` - Domain governor, ADS detector, second-order observer
+
+### OPERATIONAL (Routing & Detection)
+Operational geometry for routing decisions:
+- `operational/detectors/` - Dimensional detection, LLM detectors, ultimate detector
+- `operational/gating/` - Unified gating, NP gating, scientific gating
+- `operational/providers/` - LLM providers, gate client
+- `operational/signals/` - Early signals processing
 
 ### MEDIATOR (Cognitive Processing)
-The mediator processes information through L0-L5 layers:
-- `mediator/l0_intake/` - Dimensional detection, LLM providers, early signals
+The mediator processes information through L1-L5 layers:
 - `mediator/l1_clarify/` - Perception
-- `mediator/l2_reflect/` - Selection, stochastic field, dissipation
+- `mediator/l2_reflect/` - Selection, stochastic field
 - `mediator/l3_integrate/` - Meta-kernel, disciplines synthesis
-- `mediator/l4_agency/` - Total system, agent swarm, memory, temporal engine
+- `mediator/l4_agency/` - Total system, agent swarm
 - `mediator/l5_transform/` - Generation, plan rendering, response planning
 - `mediator/concrescence/` - Whiteheadian process integration
 
-### RUNTIMES (Execution Layers)
-Optional user-facing implementations:
-- `runtimes/enoq/pipeline/` - ENOQ pipeline and L2 execution
-- `runtimes/enoq/io/` - CLI, server, interactive session
+### RUNTIME (Execution Layer)
+The execution layer:
+- `runtime/pipeline/` - enoq() main entry point, L2 execution
+- `runtime/io/` - CLI, interactive session, agent responses
 
-### INTERFACE (Contracts)
-- `interface/types.ts` - Shared type definitions
+### RESEARCH (Experimental - Isolated)
+- `research/genesis/` - GENESIS experiments
+- `research/enoq_cli.ts` - Standalone CLI
+- `research/server.ts` - HTTP server
 
 ## Dependency Rules
 
-**CRITICAL**: gate/ MUST NOT import from mediator/ or runtimes/
-
-This ensures the gate can enforce constraints without being influenced by the cognitive layers it regulates.
-
 ```
-interface/ <── gate/ <── mediator/ <── runtimes/
+interface/ <── gate/ <── operational/ <── mediator/ <── runtime/
+                                                          │
+                                                          ↓
+                                                      research/
 ```
+
+**CRITICAL RULES**:
+- `interface/` MUST NOT import anything
+- `gate/` imports ONLY from `interface/`
+- `operational/` imports from `interface/`, `gate/`
+- `mediator/` imports from `interface/`, `gate/`, `operational/`
+- `runtime/` imports from `interface/`, `gate/`, `operational/`, `mediator/`
+- `research/` is ISOLATED (cannot be imported by production code)
+
+### Known Architectural Coupling (Documented)
+
+| From | To | Reason |
+|------|----|--------|
+| gate/verification/ | mediator/l5_transform/response_plan | ResponsePlan types |
+| gate/withdrawal/ | mediator/l5_transform/response_plan | ResponsePlan types |
+| operational/signals/ | mediator/l5_transform/response_plan | ResponsePlan types |
+| mediator/concrescence/ | runtime/pipeline | enoq() function |
+| runtime/pipeline/ | research/genesis | field_integration |
+
+## Enforcement
+
+Import boundaries are enforced by:
+1. `scripts/check-imports.sh` - Shell script for CI
+2. TypeScript compilation (fails on broken imports)
 
 ## Canonical Sentence
 
-> LIMEN is a cognitive control system composed of a normative gate and a cognitive mediator, with optional runtimes such as ENOQ.
+> LIMEN is a cognitive control system composed of a normative gate, an operational geometry, and a cognitive mediator, with a runtime execution layer.
 
 ## Consequences
 
-- Clear separation of normative vs operational concerns
-- Gate can be tested independently
-- Mediator layers are explicit and auditable
-- Runtimes are pluggable
-- Import structure enforces architectural boundaries
+- Clear four-layer separation: interface → gate → operational → mediator → runtime
+- Normative concerns in gate/, operational concerns in operational/
+- Shared types in interface/ prevent circular dependencies
+- Research code is isolated from production
+- Import boundaries are enforced by scripts

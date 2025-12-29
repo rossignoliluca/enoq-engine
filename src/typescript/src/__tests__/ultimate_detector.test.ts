@@ -15,7 +15,7 @@ import {
   UltimateDetector,
   DetectorOutput,
   SafetyFloor
-} from '../mediator/l0_intake/ultimate_detector';
+} from '../operational/detectors/ultimate_detector';
 import { SupportedLanguage } from '../interface/types';
 
 describe('Ultimate Detector v2 (Calibrated Sensor)', () => {

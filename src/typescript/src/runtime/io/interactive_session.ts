@@ -5,10 +5,10 @@
  */
 
 import * as readline from 'readline';
-import { totalSystem } from '../../../mediator/l4_agency/total_system';
-import { dissipationEngine } from '../../../mediator/l2_reflect/dissipation';
-import { unpredictableComponent } from '../../../mediator/l4_agency/unpredictable';
-import { SupportedLanguage } from '../../../interface/types';
+import { totalSystem } from '../../mediator/l4_agency/total_system';
+import { dissipationEngine } from '../../mediator/l2_reflect/dissipation';
+import { unpredictableComponent } from '../../mediator/l4_agency/unpredictable';
+import { SupportedLanguage } from '../../interface/types';
 
 const rl = readline.createInterface({
   input: process.stdin,

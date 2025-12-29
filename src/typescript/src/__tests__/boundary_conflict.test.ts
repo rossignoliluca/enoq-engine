@@ -10,10 +10,10 @@
  * These tests ensure the two systems don't conflict.
  */
 
-import { mergePolicyAdjustments, PolicyAdjustments } from '../mediator/l0_intake/early_signals';
-import { computeADS, ADSInput } from '../gate/geometry_normative/ads_detector';
-import { observeSecondOrder, toPartialPolicy, SecondOrderInput } from '../gate/geometry_normative/second_order_observer';
-import { DimensionalState } from '../mediator/l0_intake/dimensional_system';
+import { mergePolicyAdjustments, PolicyAdjustments } from '../operational/signals/early_signals';
+import { computeADS, ADSInput } from '../gate/enforcement/ads_detector';
+import { observeSecondOrder, toPartialPolicy, SecondOrderInput } from '../gate/enforcement/second_order_observer';
+import { DimensionalState } from '../operational/detectors/dimensional_system';
 import { FieldState } from '../interface/types';
 
 // ============================================

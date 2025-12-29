@@ -371,7 +371,7 @@
         "v_mode": false,
         "emergency": false,
         "primary_vertical": "EXISTENTIAL",
-        "latency_ms": 1
+        "latency_ms": 0
       },
       "correct": {
         "v_mode": false,

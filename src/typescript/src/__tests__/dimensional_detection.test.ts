@@ -14,7 +14,7 @@
  * RUN: npx jest dimensional_detection.test.ts
  */
 
-import { dimensionalDetector } from '../mediator/l0_intake/dimensional_system';
+import { dimensionalDetector } from '../operational/detectors/dimensional_system';
 
 describe('V_MODE Detection', () => {
   describe('should trigger V_MODE on rich existential questions', () => {

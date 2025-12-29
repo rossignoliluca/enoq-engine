@@ -33,8 +33,8 @@
 
 import { FieldState, HumanDomain, SupportedLanguage, DomainActivation, Arousal, Valence, Coherence, GoalType, Flag } from '../../interface/types';
 import { memorySystem, Episode, UserModel } from '../l4_agency/memory_system';
-import { dimensionalIntegrator, DimensionalState } from '../l0_intake/dimensional_system';
-import { hybridDetector } from '../l0_intake/hybrid_detector';
+import { dimensionalIntegrator, DimensionalState } from '../../operational/detectors/dimensional_system';
+import { hybridDetector } from '../../operational/detectors/hybrid_detector';
 import { agentSwarm, SwarmState, ConsensusState, AgentID } from '../l4_agency/agent_swarm';
 import { metacognitiveMonitor, MetacognitiveReport } from '../l4_agency/metacognitive_monitor';
 import { temporalEngine, TemporalAnalysis } from '../l4_agency/temporal_engine';

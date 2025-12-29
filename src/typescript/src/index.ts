@@ -33,20 +33,20 @@ export * from './interface/types';
 export {
   DimensionalDetector,
   DimensionalState,
-} from './mediator/l0_intake/dimensional_system';
+} from './operational/detectors/dimensional_system';
 
 export {
   getUltimateDetector,
   UltimateDetector,
   DetectorOutput,
-} from './mediator/l0_intake/ultimate_detector';
+} from './operational/detectors/ultimate_detector';
 
 export {
   scanExistentialLexicon,
   getBoostedExistentialScore,
   LexiconMatch,
   LexiconResult,
-} from './mediator/l0_intake/existential_lexicon';
+} from './operational/detectors/existential_lexicon';
 
 export {
   GateClient,
@@ -55,13 +55,13 @@ export {
   getGateClient,
   resetGateClient,
   GateClientConfig,
-} from './mediator/l0_intake/gate_client';
+} from './operational/providers/gate_client';
 
 export {
   EmbeddedGate,
   getEmbeddedGate,
   interpretEmbeddedGateSignal,
-} from './mediator/l0_intake/gate_embedded';
+} from './operational/providers/gate_embedded';
 
 // L1 - Clarify
 export { perceive } from './mediator/l1_clarify/perception';
@@ -125,7 +125,7 @@ export {
   UnifiedGatingStats,
   SkipReason,
   DEFAULT_UNIFIED_CONFIG,
-} from './gate/geometry_operational/unified_gating';
+} from './operational/gating/unified_gating';
 
 export {
   NPGating,
@@ -134,7 +134,7 @@ export {
   NPGatingDecision,
   NPGatingStats,
   DEFAULT_NP_CONFIG,
-} from './gate/geometry_operational/np_gating';
+} from './operational/gating/np_gating';
 
 // Thresholds
 export {
@@ -144,7 +144,7 @@ export {
 } from './gate/thresholds/llm_cache';
 
 // Geometry Normative
-export { applyDomainGovernor, GovernorResult } from './gate/geometry_normative/domain_governor';
+export { applyDomainGovernor, GovernorResult } from './gate/enforcement/domain_governor';
 
 // Verification
 export { default as verify, S5Result, S5Input, AuditEntry, FallbackLevel, getFallbackOutput } from './gate/verification/S5_verify';
@@ -163,14 +163,14 @@ export {
   PipelineConfig,
   conversationLoop,
   concrescenceConversationLoop,
-} from './runtimes/enoq/pipeline/pipeline';
+} from './runtime/pipeline/pipeline';
 
 export {
   compileExecutionContext,
   execute,
   ExecutionContext,
   ExecutionResult,
-} from './runtimes/enoq/pipeline/l2_execution';
+} from './runtime/pipeline/l2_execution';
 
 // ============================================
 // CONVENIENCE FUNCTIONS

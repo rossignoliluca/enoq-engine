@@ -8,8 +8,8 @@
  * - Match the emotional/dimensional context
  */
 
-import { SupportedLanguage, HumanDomain } from '../../../interface/types';
-import { VerticalDimension, DimensionalState } from '../../../mediator/l0_intake/dimensional_system';
+import { SupportedLanguage, HumanDomain } from '../../interface/types';
+import { VerticalDimension, DimensionalState } from '../../operational/detectors/dimensional_system';
 
 // ============================================
 // TYPES

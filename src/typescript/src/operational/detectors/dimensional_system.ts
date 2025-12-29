@@ -15,52 +15,17 @@
  * trigger V_MODE automatically - enhanced constitutional protection.
  */
 
-import { HumanDomain, FieldState, SupportedLanguage } from '../../interface/types';
+import {
+  HumanDomain,
+  FieldState,
+  SupportedLanguage,
+  VerticalDimension,
+  DimensionalState,
+  IntegrationMetrics,
+} from '../../interface/types';
 
-// ============================================
-// TYPES
-// ============================================
-
-export type VerticalDimension =
-  | 'SOMATIC'       // Body, sensation, energy, health
-  | 'FUNCTIONAL'    // Goals, problems, resources, actions
-  | 'RELATIONAL'    // Self-other, attachment, power, love
-  | 'EXISTENTIAL'   // Identity, death, freedom, isolation, meaning
-  | 'TRANSCENDENT'; // Purpose beyond self, connection to whole
-
-export interface DimensionalState {
-  // Vertical activation (0-1 for each)
-  vertical: Record<VerticalDimension, number>;
-
-  // Horizontal activation (0-1 for each H01-H17)
-  horizontal: Record<HumanDomain, number>;
-
-  // Integration metrics
-  integration: IntegrationMetrics;
-
-  // Dominant dimensions
-  primary_vertical: VerticalDimension;
-  primary_horizontal: HumanDomain[];
-
-  // Special flags
-  v_mode_triggered: boolean;
-  emergency_detected: boolean;
-  cross_dimensional: boolean;  // Multiple dimensions strongly active
-}
-
-export interface IntegrationMetrics {
-  // Φ-inspired measure: how interconnected are the active dimensions?
-  phi: number;  // 0-1
-
-  // Complexity: how many dimensions are active?
-  complexity: number;
-
-  // Coherence: do the active dimensions make sense together?
-  coherence: number;
-
-  // Tension: are there conflicting dimensions?
-  tension: number;
-}
+// Re-export types for backwards compatibility
+export type { VerticalDimension, DimensionalState, IntegrationMetrics } from '../../interface/types';
 
 // ============================================
 // VERTICAL DIMENSION MARKERS

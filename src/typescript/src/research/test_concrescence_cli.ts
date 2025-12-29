@@ -3,7 +3,7 @@
  */
 
 import { ConcrescenceEngine } from '../mediator/concrescence/concrescence_engine';
-import { createSession } from '../runtimes/enoq/pipeline/pipeline';
+import { createSession } from '../runtime/pipeline/pipeline';
 import { SupportedLanguage } from '../interface/types';
 
 interface TestCase {

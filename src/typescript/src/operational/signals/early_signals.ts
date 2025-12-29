@@ -15,7 +15,17 @@
  * - Fallback: conservative defaults if timeout
  */
 
-import { ADSScore, MotiveDistribution, RiskFlags, ResponsePlan } from '../l5_transform/response_plan';
+import {
+  ADSScore,
+  MotiveDistribution,
+  RiskFlags,
+  PolicyAdjustments,
+  DelegationPrediction,
+  ResponsePlan,
+} from '../../interface/types';
+
+// Re-export shared types for backwards compatibility
+export type { PolicyAdjustments, DelegationPrediction, ResponsePlan } from '../../interface/types';
 
 // ============================================
 // DEADLINE CONFIGURATION
@@ -39,55 +49,8 @@ export const DEADLINE_CONFIG = {
 // EARLY SIGNALS COMPONENTS
 // ============================================
 
-/**
- * Delegation prediction from ADS + motive analysis.
- * Produced by: AllostticAnticipator or TotalSystem
- */
-export interface DelegationPrediction {
-  /** Avoidable Delegation Surprise score */
-  ads: ADSScore;
-
-  /** Motive distribution */
-  motive: MotiveDistribution;
-
-  /** Should system intervene? */
-  should_intervene: boolean;
-
-  /** Suggested intervention level 0-1 */
-  intervention_level: number;
-}
-
-/**
- * Policy adjustments from memory/swarm/meta.
- * These modify constraints, not content.
- *
- * OWNERSHIP:
- * - ADS (HARD): disable_tools, must_require_user_effort, brevity_delta
- * - Second Order (SOFT): warmth_delta, force_pronouns, brevity_delta
- * - Both can set brevity_delta; merge takes min (more negative = more brief)
- */
-export interface PolicyAdjustments {
-  /** Budget deltas for specific resources */
-  budget_deltas?: Record<string, number>;
-
-  /** Override max_length */
-  max_length?: number;
-
-  /** Override warmth */
-  warmth_delta?: number;  // -1 to +1
-
-  /** Override brevity (reduce = negative) */
-  brevity_delta?: number;
-
-  /** Force specific pronoun style */
-  force_pronouns?: 'i_you' | 'we' | 'impersonal';
-
-  /** Disable tools (HARD - ADS only) */
-  disable_tools?: boolean;
-
-  /** Force user effort requirement (HARD - ADS only) */
-  must_require_user_effort?: boolean;
-}
+// Note: DelegationPrediction and PolicyAdjustments are now defined in interface/types.ts
+// and re-exported above for backwards compatibility
 
 // ============================================
 // POLICY ADJUSTMENTS MERGE

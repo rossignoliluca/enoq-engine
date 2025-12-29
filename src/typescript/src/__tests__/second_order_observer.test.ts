@@ -19,7 +19,7 @@ import {
   SecondOrderInput,
   SecondOrderOutput,
   SecondOrderDetection,
-} from '../gate/geometry_normative/second_order_observer';
+} from '../gate/enforcement/second_order_observer';
 
 // ============================================
 // USER'S 5 SPECIFIC TEST CASES

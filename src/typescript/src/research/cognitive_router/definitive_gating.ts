@@ -20,7 +20,7 @@
  * - A(x) ≤ τ → call LLM (uncertain, might be v_mode)
  */
 
-import { DimensionalState, DimensionalDetector } from '../../mediator/l0_intake/dimensional_system';
+import { DimensionalState, DimensionalDetector } from '../../operational/detectors/dimensional_system';
 import { SupportedLanguage } from '../../interface/types';
 import {
   CalibrationResult,

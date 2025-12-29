@@ -21,8 +21,8 @@
  * - Must generate valid training examples (no hallucination)
  */
 
-import { DimensionalState } from '../../mediator/l0_intake/dimensional_system';
-import { RegimeClassification } from '../../mediator/l0_intake/llm_detector_v2';
+import { DimensionalState } from '../../operational/detectors/dimensional_system';
+import { RegimeClassification } from '../../operational/detectors/llm_detector_v2';
 
 // ============================================
 // TYPES

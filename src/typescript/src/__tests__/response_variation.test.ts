@@ -14,8 +14,8 @@
  * RUN: npx jest response_variation.test.ts
  */
 
-import { generateAgentResponse, ResponseContext } from '../runtimes/enoq/io/agent_responses';
-import { createSession } from '../runtimes/enoq/pipeline/pipeline';
+import { generateAgentResponse, ResponseContext } from '../mediator/l5_transform/agent_responses';
+import { createSession } from '../runtime/pipeline/pipeline';
 
 describe('Response Variation', () => {
   const baseContext: ResponseContext = {

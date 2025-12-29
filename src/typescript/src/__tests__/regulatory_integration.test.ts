@@ -13,7 +13,7 @@ import {
   createSession,
   Session,
   PipelineConfig
-} from '../runtimes/enoq/pipeline/pipeline';
+} from '../runtime/pipeline/pipeline';
 import {
   getRegulatoryStore,
   resetRegulatoryStore,
@@ -32,7 +32,9 @@ const TEST_CONFIG: PipelineConfig = {
 // ============================================
 
 beforeEach(() => {
-  resetRegulatoryStore();
+  // Get or create the store, then clear all data
+  // This ensures we clear any persisted SQLite data from previous runs
+  getRegulatoryStore().clear();
 });
 
 afterAll(() => {

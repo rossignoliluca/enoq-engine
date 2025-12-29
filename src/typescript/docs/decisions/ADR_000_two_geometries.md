@@ -1,7 +1,7 @@
 # ADR-000: Two Geometries + Threshold
 
 ## Status
-Accepted
+Accepted (Updated 2024-12-28)
 
 ## Context
 The system requires separation between operational decisions (routing, caching, detection) and normative decisions (enforcement, constitutional constraints). Mixing these concerns leads to:
@@ -12,24 +12,26 @@ The system requires separation between operational decisions (routing, caching, 
 ## Decision
 Implement **Two Geometries** architecture:
 
-### Geometry Operational (`control/geometry_operational/`)
-- Routing decisions (`routing/unified_gating.ts`, `routing/np_gating.ts`)
-- Caching (`caching/llm_cache.ts`)
+### Geometry Operational (`operational/`)
+- Routing decisions (`gating/unified_gating.ts`, `gating/np_gating.ts`)
+- Caching (`gate/thresholds/llm_cache.ts`)
 - Detection (`detectors/dimensional_system.ts`, `detectors/ultimate_detector.ts`)
 - LLM providers (`providers/llm_provider.ts`, `providers/gate_client.ts`)
+- Early signals (`signals/early_signals.ts`)
 
-### Geometry Normative (`control/geometry_normative/`)
-- Constitutional enforcement (`enforcement/axis.ts`, `enforcement/S5_verify.ts`)
-- Plan verification (`enforcement/plan_act_verifier.ts`)
+### Geometry Normative (`gate/`)
+- Constitutional enforcement (`invariants/axis.ts`, `verification/S5_verify.ts`)
+- Plan verification (`verification/plan_act_verifier.ts`)
 - Domain governance (`enforcement/domain_governor.ts`)
-- Second-order observation (`observers/second_order_observer.ts`, `observers/ads_detector.ts`)
-- Regulatory rules (`regulation/lifecycle_controller.ts`, `regulation/regulatory_store.ts`)
+- Second-order observation (`enforcement/second_order_observer.ts`, `enforcement/ads_detector.ts`)
+- Regulatory rules (`withdrawal/lifecycle_controller.ts`, `withdrawal/regulatory_store.ts`)
 
 ### Import Rules (HARD)
-- `geometry_normative` MUST NOT import from `geometry_operational` (except shared types)
-- `runtime` MUST NOT import from `research`
-- `control` MUST NOT import from `research`
-- `research` may import anything
+- `gate/` imports ONLY from `interface/`
+- `operational/` imports from `interface/`, `gate/`
+- `runtime/` MUST NOT import from `research/`
+- `research/` is isolated (cannot be imported by production code)
+- Shared types are in `interface/types.ts`
 
 ### Threshold
 The threshold between geometries is the `DimensionalState` type - operational geometry computes it, normative geometry constrains responses based on it.
@@ -41,5 +43,5 @@ The threshold between geometries is the `DimensionalState` type - operational ge
 - Testing can focus on each geometry separately
 
 ## Tests
-- Import graph analysis validates no cross-geometry imports
-- All invariants (INV-003, INV-009, INV-011) verified in geometry_normative tests
+- `scripts/check-imports.sh` validates import boundaries
+- All invariants (INV-003, INV-009, INV-011) verified in gate/ tests

@@ -17,8 +17,8 @@
  */
 
 import { HumanDomain, FieldState, SupportedLanguage } from '../../interface/types';
-import { DimensionalState, VerticalDimension } from '../l0_intake/dimensional_system';
-import { generateAgentResponse, generateContextualResponse, generateDomainResponse, ResponseContext } from '../../runtimes/enoq/io/agent_responses';
+import { DimensionalState, VerticalDimension } from '../../operational/detectors/dimensional_system';
+import { generateAgentResponse, generateContextualResponse, generateDomainResponse, ResponseContext } from '../l5_transform/agent_responses';
 
 // ============================================
 // TYPES

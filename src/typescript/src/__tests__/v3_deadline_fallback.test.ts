@@ -16,7 +16,7 @@ import {
   CONSERVATIVE_DEFAULTS,
   mergeWithDefaults,
   applySignalsToPlan,
-} from '../mediator/l0_intake/early_signals';
+} from '../operational/signals/early_signals';
 
 import {
   generateCandidatePlans,
@@ -45,7 +45,7 @@ import {
 import { renderPlan } from '../mediator/l5_transform/plan_renderer';
 
 import { FieldState, ProtocolSelection } from '../interface/types';
-import { DimensionalState } from '../mediator/l0_intake/dimensional_system';
+import { DimensionalState } from '../operational/detectors/dimensional_system';
 
 // ============================================
 // TEST FIXTURES

@@ -14,7 +14,7 @@
  */
 
 import { enoq, createSession, Session } from '../pipeline/pipeline';
-import { checkLLMAvailability } from '../../../mediator/l0_intake/llm_provider';
+import { checkLLMAvailability } from '../../operational/providers/llm_provider';
 import * as readline from 'readline';
 
 // ============================================

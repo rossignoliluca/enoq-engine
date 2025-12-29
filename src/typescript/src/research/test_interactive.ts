@@ -5,7 +5,7 @@
  */
 
 import { ConcrescenceEngine } from '../mediator/concrescence/concrescence_engine';
-import { createSession, Session } from '../runtimes/enoq/pipeline/pipeline';
+import { createSession, Session } from '../runtime/pipeline/pipeline';
 
 interface Turn {
   user: string;

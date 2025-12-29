@@ -15,7 +15,7 @@
 
 import { totalSystem, processMessage } from '../mediator/l4_agency/total_system';
 import { disciplinesSynthesis, PATTERN_LIBRARY, LEVERAGE_POINTS } from '../mediator/l3_integrate/disciplines_synthesis';
-import { dimensionalDetector } from '../mediator/l0_intake/dimensional_system';
+import { dimensionalDetector } from '../operational/detectors/dimensional_system';
 import { dissipationEngine } from '../mediator/l2_reflect/dissipation';
 import { unpredictableComponent } from '../mediator/l4_agency/unpredictable';
 import { axis } from '../gate/invariants/axis';

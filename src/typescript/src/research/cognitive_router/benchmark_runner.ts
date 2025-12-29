@@ -25,7 +25,7 @@ import { SelfImprover } from './self_improver';
 
 // Import runtime dependencies
 import { BENCHMARK_CASES } from '../../benchmarks/cases/benchmark_cases';
-import { DimensionalDetector } from '../../mediator/l0_intake/dimensional_system';
+import { DimensionalDetector } from '../../operational/detectors/dimensional_system';
 import { SupportedLanguage } from '../../interface/types';
 
 // ============================================

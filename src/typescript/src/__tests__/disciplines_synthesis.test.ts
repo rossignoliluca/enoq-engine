@@ -22,7 +22,7 @@ import {
   getPatternsByCategory,
   getPatternResponse
 } from '../mediator/l3_integrate/disciplines_synthesis';
-import { DimensionalState } from '../mediator/l0_intake/dimensional_system';
+import { DimensionalState } from '../operational/detectors/dimensional_system';
 import { FieldState, SupportedLanguage } from '../interface/types';
 
 // ============================================

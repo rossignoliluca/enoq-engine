@@ -7,17 +7,17 @@
  * This is ENOQ.
  */
 
-import { FieldState, ProtocolSelection, GoalType, Flag, GateSignal, GateReasonCode, SupportedLanguage } from '../../../interface/types';
-import { perceive } from '../../../mediator/l1_clarify/perception';
-import { select } from '../../../mediator/l2_reflect/selection';
-import { applyDomainGovernor, GovernorResult } from '../../../gate/geometry_normative/domain_governor';
+import { FieldState, ProtocolSelection, GoalType, Flag, GateSignal, GateReasonCode, SupportedLanguage } from '../../interface/types';
+import { perceive } from '../../mediator/l1_clarify/perception';
+import { select } from '../../mediator/l2_reflect/selection';
+import { applyDomainGovernor, GovernorResult } from '../../gate/enforcement/domain_governor';
 import {
   applyMetaKernel,
   MetaKernelState,
   SessionTelemetry,
   TurnTelemetry,
   createDefaultState as createDefaultMetaKernelState,
-} from '../../../mediator/l3_integrate/meta_kernel';
+} from '../../mediator/l3_integrate/meta_kernel';
 import {
   compileExecutionContext,
   execute,
@@ -30,7 +30,7 @@ import verify, {
   AuditEntry,
   FallbackLevel,
   getFallbackOutput,
-} from '../../../gate/verification/S5_verify';
+} from '../../gate/verification/S5_verify';
 import {
   GateClient,
   GateResult,
@@ -38,28 +38,28 @@ import {
   interpretGateSignal,
   getGateClient,
   GateClientConfig,
-} from '../../../mediator/l0_intake/gate_client';
+} from '../../operational/providers/gate_client';
 import {
   EmbeddedGate,
   EmbeddedGateResult,
   GateSignalEffect as EmbeddedGateEffect,
   getEmbeddedGate,
   interpretEmbeddedGateSignal,
-} from '../../../mediator/l0_intake/gate_embedded';
+} from '../../operational/providers/gate_embedded';
 import {
   curveSelection,
   getFieldTraceInfo,
   FieldTraceInfo
-} from '../../../research/genesis/field_integration';
-import { DimensionalState } from '../../../mediator/l0_intake/dimensional_system';
-import { hybridDetector } from '../../../mediator/l0_intake/hybrid_detector';
+} from '../experimental/field_integration';
+import { DimensionalState } from '../../operational/detectors/dimensional_system';
+import { hybridDetector } from '../../operational/detectors/hybrid_detector';
 import {
   getUltimateDetector,
   UltimateDetector,
   DetectorOutput,
   SafetyFloor,
   RiskFlags
-} from '../../../mediator/l0_intake/ultimate_detector';
+} from '../../operational/detectors/ultimate_detector';
 import {
   ManifoldState,
   InputState,
@@ -70,19 +70,19 @@ import {
   evolve as evolveManifold,
   diagnostics as manifoldDiagnostics,
   FieldDiagnostics
-} from '../../../mediator/l2_reflect/stochastic_field';
+} from '../../mediator/l2_reflect/stochastic_field';
 import {
   curveSelectionWithManifold,
   CurvatureResult,
   CurvatureEntry,
   getCurvatureSeverity
-} from '../../../mediator/l2_reflect/selection_curver';
+} from '../../mediator/l2_reflect/selection_curver';
 import {
   getRegulatoryStore,
   RegulatoryState,
   createDefaultState as createDefaultRegulatoryState,
   IRegulatoryStore
-} from '../../../gate/withdrawal/regulatory_store';
+} from '../../gate/withdrawal/regulatory_store';
 
 // v5.1 Unified Gating (single routing point for LLM calls)
 import {
@@ -90,8 +90,8 @@ import {
   UnifiedGatingDecision,
   UnifiedGatingStats,
   SkipReason,
-} from '../../../gate/geometry_operational/unified_gating';
-import { DimensionalDetector } from '../../../mediator/l0_intake/dimensional_system';
+} from '../../operational/gating/unified_gating';
+import { DimensionalDetector } from '../../operational/detectors/dimensional_system';
 
 // ============================================
 // NEW ARCHITECTURE IMPORTS (v3.0)
@@ -102,7 +102,7 @@ import {
   ResponsePlan,
   PlanObservability,
   validatePlan,
-} from '../../../mediator/l5_transform/response_plan';
+} from '../../mediator/l5_transform/response_plan';
 
 import {
   EarlySignals,
@@ -110,13 +110,13 @@ import {
   DEADLINE_CONFIG,
   waitForSignals,
   CONSERVATIVE_DEFAULTS,
-} from '../../../mediator/l0_intake/early_signals';
+} from '../../operational/signals/early_signals';
 
 import {
   bridgeWithDeadline,
   generateFastSignals,
   BridgeInput,
-} from '../../../mediator/l4_agency/total_system_bridge';
+} from '../../mediator/l4_agency/total_system_bridge';
 
 import {
   generateCandidatePlans,
@@ -124,7 +124,7 @@ import {
   phasedSelection,
   PhasedSelectionInput,
   PhasedSelectionResult,
-} from '../../../mediator/l2_reflect/selection_phased';
+} from '../../mediator/l2_reflect/selection_phased';
 
 import {
   initLifecycleSnapshot,
@@ -134,17 +134,17 @@ import {
   calculateInfluenceUsed,
   LifecycleSnapshot,
   TurnOutcome,
-} from '../../../gate/withdrawal/lifecycle_controller';
+} from '../../gate/withdrawal/lifecycle_controller';
 
 import {
   renderPlan,
   RenderResult,
-} from '../../../mediator/l5_transform/plan_renderer';
+} from '../../mediator/l5_transform/plan_renderer';
 
 import {
   verifyAndFixPlan,
   PlanVerification,
-} from '../../../gate/verification/plan_act_verifier';
+} from '../../gate/verification/plan_act_verifier';
 
 // ============================================
 // PIPELINE CONFIG
@@ -2064,7 +2064,7 @@ export async function conversationLoop(): Promise<void> {
  */
 export async function concrescenceConversationLoop(): Promise<void> {
   // Dynamic import to avoid circular dependency
-  const { ConcrescenceEngine } = await import('../../../mediator/concrescence/concrescence_engine');
+  const { ConcrescenceEngine } = await import('../../mediator/concrescence/concrescence_engine');
 
   const engine = new ConcrescenceEngine({ debug: false });
   const session = createSession();

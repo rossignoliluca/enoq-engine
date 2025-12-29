@@ -26,7 +26,7 @@
  */
 
 import { SupportedLanguage, FieldState } from '../../interface/types';
-import { DimensionalState } from '../l0_intake/dimensional_system';
+import { DimensionalState } from '../../operational/detectors/dimensional_system';
 
 // ============================================
 // CORE MODES (Foundation from 215 disciplines)

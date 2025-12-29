@@ -18,7 +18,7 @@
  * - re_entry: Ceremony required to resume after dormancy
  */
 
-import { ResponsePlan } from '../../mediator/l5_transform/response_plan';
+import { ResponsePlan } from '../../interface/types';
 
 // ============================================
 // TYPES

@@ -14,17 +14,25 @@
  * If neither works → fallback to canonical safe plan.
  */
 
+// Types from interface (pure types)
 import {
   ResponsePlan,
   SpeechAct,
   SpeechActType,
   PlanConstraints,
+  SupportedLanguage,
+  ForbiddenAction,
+} from '../../interface/types';
+
+// Builder functions from mediator (factory functions for fallback plans)
+import {
   createDefaultPlan,
   createEmergencyPlan,
   createVModePlan,
 } from '../../mediator/l5_transform/response_plan';
-import { EarlySignals } from '../../mediator/l0_intake/early_signals';
-import { SupportedLanguage, ForbiddenAction } from '../../interface/types';
+
+// Signals from operational
+import { EarlySignals } from '../../operational/signals/early_signals';
 
 // ============================================
 // TYPES

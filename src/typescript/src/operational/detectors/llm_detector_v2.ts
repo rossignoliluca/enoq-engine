@@ -20,12 +20,19 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
-import { SupportedLanguage } from '../../interface/types';
+import {
+  SupportedLanguage,
+  RiskFlags,
+  RegimeClassification,
+  ExistentialSpecificity,
+} from '../../interface/types';
 import { DimensionalDetector, DimensionalState } from './dimensional_system';
-import { RiskFlags } from '../l5_transform/response_plan';
-import { EarlySignals, MetacognitiveSignal, DEADLINE_CONFIG } from './early_signals';
+import { EarlySignals, MetacognitiveSignal, DEADLINE_CONFIG } from '../signals/early_signals';
 import { LLMDetectorCache, CacheStats } from '../../gate/thresholds/llm_cache';
-import { ScientificGating, GatingDecision as ScientificGatingDecision, GatingStats } from '../../gate/geometry_operational/scientific_gating';
+import { ScientificGating, GatingDecision as ScientificGatingDecision, GatingStats } from '../../operational/gating/scientific_gating';
+
+// Re-export shared types for backwards compatibility
+export type { RegimeClassification, ExistentialSpecificity } from '../../interface/types';
 
 // ============================================
 // TYPES
@@ -71,70 +78,8 @@ export const DEFAULT_CONFIG: LLMDetectorConfig = {
   temperature: 0.1, // Low temperature for deterministic classification
 };
 
-/**
- * Existential specificity breakdown - Yalom's four givens + isolation
- */
-export interface ExistentialSpecificity {
-  /** Identity: "who am I", "chi sono", self-concept */
-  identity: number;  // 0-1
-
-  /** Meaning: "what's the point", "qual è il senso", purpose */
-  meaning: number;   // 0-1
-
-  /** Death: mortality, finiteness, endings */
-  death: number;     // 0-1
-
-  /** Freedom: choice, agency, authenticity, responsibility */
-  freedom: number;   // 0-1
-
-  /** Isolation: aloneness, disconnection, existential loneliness */
-  isolation: number; // 0-1
-}
-
-/**
- * LLM output schema - REGIME ONLY, no content
- *
- * Key semantic distinction:
- * - existential_content = primitive signal (meaning/identity present)
- * - v_mode = derived signal (existential ∧ NOT casual_work)
- */
-export interface RegimeClassification {
-  /** Primary regime detected */
-  regime: 'existential' | 'crisis' | 'relational' | 'functional' | 'somatic';
-
-  /** Confidence in classification */
-  confidence: number;
-
-  /** Existential content detection (PRIMITIVE signal) */
-  existential: {
-    /** Any existential content present? */
-    content_detected: boolean;
-
-    /** Specificity breakdown (which existential themes) */
-    specificity: ExistentialSpecificity;
-
-    /** Is this in casual work context? (meeting, deadline, task) */
-    casual_work_context: boolean;
-  };
-
-  /** V_MODE indicators (DERIVED signal) */
-  v_mode: {
-    /** Constitutional withdrawal triggered? */
-    triggered: boolean;
-
-    /** Brief markers detected (max 3) */
-    markers: string[];
-  };
-
-  /** Emergency indicators */
-  emergency: {
-    triggered: boolean;
-    type?: 'panic' | 'self_harm' | 'acute_distress';
-  };
-
-  /** Coherence of input */
-  coherence: number;
-}
+// Note: ExistentialSpecificity and RegimeClassification are now defined in interface/types.ts
+// and re-exported above for backwards compatibility
 
 /**
  * Legacy gating decision interface (v3.x compatibility)

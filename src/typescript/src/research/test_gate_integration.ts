@@ -12,8 +12,8 @@ import {
   GateSignalEffect,
   getGateClient,
   resetGateClient,
-} from '../mediator/l0_intake/gate_client';
-import { enoq, createSession, PipelineConfig } from '../runtimes/enoq/pipeline/pipeline';
+} from '../operational/providers/gate_client';
+import { enoq, createSession, PipelineConfig } from '../runtime/pipeline/pipeline';
 
 // ============================================
 // TEST UTILITIES

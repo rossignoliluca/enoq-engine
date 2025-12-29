@@ -18,7 +18,7 @@
  * - Must pass all benchmark tests
  */
 
-import { DimensionalState } from '../../mediator/l0_intake/dimensional_system';
+import { DimensionalState } from '../../operational/detectors/dimensional_system';
 
 // ============================================
 // TYPES

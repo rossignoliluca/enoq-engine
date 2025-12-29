@@ -18,7 +18,7 @@
  */
 
 import { SupportedLanguage, FieldState } from '../../interface/types';
-import { DimensionalState } from '../l0_intake/dimensional_system';
+import { DimensionalState } from '../../operational/detectors/dimensional_system';
 import {
   EarlySignals,
   EarlySignalsStatus,
@@ -35,11 +35,11 @@ import {
   waitForSignals,
   mergeSignals,
   CONSERVATIVE_DEFAULTS,
-} from '../l0_intake/early_signals';
+} from '../../operational/signals/early_signals';
 import { ADSScore, MotiveDistribution, RiskFlags } from '../l5_transform/response_plan';
 
 // Import ADS detector
-import { computeADS, ADSInput, ADSResult } from '../../gate/geometry_normative/ads_detector';
+import { computeADS, ADSInput, ADSResult } from '../../gate/enforcement/ads_detector';
 
 // Import Second Order Observer
 import {
@@ -49,7 +49,7 @@ import {
   SecondOrderInput,
   SecondOrderResult,
   SecondOrderDetection,
-} from '../../gate/geometry_normative/second_order_observer';
+} from '../../gate/enforcement/second_order_observer';
 
 // Import TotalSystem components
 import { memorySystem } from '../l4_agency/memory_system';
@@ -60,7 +60,7 @@ import { disciplinesSynthesis } from '../l3_integrate/disciplines_synthesis';
 import { dissipationEngine } from '../l2_reflect/dissipation';
 
 // Import LLM detector v2 (regime classification)
-import { llmDetectorV2, LLMDetectorSignals, ExistentialSpecificity } from '../l0_intake/llm_detector_v2';
+import { llmDetectorV2, LLMDetectorSignals, ExistentialSpecificity } from '../../operational/detectors/llm_detector_v2';
 
 // ============================================
 // BRIDGE INPUT

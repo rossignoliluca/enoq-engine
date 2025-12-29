@@ -5,7 +5,7 @@
  */
 
 import { processWithConcrescence, ConcrescenceEngine } from '../mediator/concrescence/concrescence_engine';
-import { createSession } from '../runtimes/enoq/pipeline/pipeline';
+import { createSession } from '../runtime/pipeline/pipeline';
 
 async function testConcrescenceEngine() {
   console.log('\n========================================');

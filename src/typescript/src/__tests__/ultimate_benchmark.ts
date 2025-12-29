@@ -3,7 +3,7 @@
  * Run with: OPENAI_API_KEY=<key> npx ts-node src/__tests__/ultimate_benchmark.ts
  */
 
-import { getUltimateDetector, resetUltimateDetector, DetectorOutput } from '../mediator/l0_intake/ultimate_detector';
+import { getUltimateDetector, resetUltimateDetector, DetectorOutput } from '../operational/detectors/ultimate_detector';
 import { SupportedLanguage } from '../interface/types';
 
 interface BenchmarkCase {

@@ -18,7 +18,7 @@
 
 import { FieldState, ProtocolSelection, SupportedLanguage } from '../../interface/types';
 import { select } from '../l2_reflect/selection';
-import { DimensionalState } from '../l0_intake/dimensional_system';
+import { DimensionalState } from '../../operational/detectors/dimensional_system';
 import {
   ResponsePlan,
   CandidateSet,
@@ -42,7 +42,7 @@ import {
   EarlySignalsStatus,
   applySignalsToPlan,
   CONSERVATIVE_DEFAULTS,
-} from '../l0_intake/early_signals';
+} from '../../operational/signals/early_signals';
 
 // ============================================
 // TYPES

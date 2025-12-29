@@ -12,8 +12,7 @@
  */
 
 import { createHash } from 'crypto';
-import { SupportedLanguage } from '../../interface/types';
-import { RegimeClassification } from '../../mediator/l0_intake/llm_detector_v2';
+import { SupportedLanguage, RegimeClassification } from '../../interface/types';
 
 // ============================================
 // TYPES

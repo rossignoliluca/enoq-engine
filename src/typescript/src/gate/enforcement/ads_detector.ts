@@ -15,10 +15,15 @@
  * - inertia = decay factor from repeated delegations
  */
 
-import { FieldState, GoalType } from '../../interface/types';
-import { DimensionalState } from '../../mediator/l0_intake/dimensional_system';
-import { ADSScore, MotiveDistribution } from '../../mediator/l5_transform/response_plan';
-import { DelegationPrediction, PolicyAdjustments } from '../../mediator/l0_intake/early_signals';
+import {
+  FieldState,
+  GoalType,
+  DimensionalState,
+  ADSScore,
+  MotiveDistribution,
+  DelegationPrediction,
+  PolicyAdjustments,
+} from '../../interface/types';
 
 // ============================================
 // MOTIVE WEIGHTS (Problematic vs Acceptable)

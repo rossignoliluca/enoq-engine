@@ -5,7 +5,7 @@
  * Separated from test file for use in baseline generation.
  */
 
-import { VerticalDimension } from '../../mediator/l0_intake/dimensional_system';
+import { VerticalDimension } from '../../operational/detectors/dimensional_system';
 import { HumanDomain, SupportedLanguage } from '../../interface/types';
 
 export interface BenchmarkCase {

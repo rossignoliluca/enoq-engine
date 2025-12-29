@@ -20,10 +20,10 @@ import {
   SupportedLanguage,
   LanguageDetectionResult,
   CULTURE_PROFILES,
-} from '../../../interface/types';
-import { GovernorResult } from '../../../gate/geometry_normative/domain_governor';
-import { MetaKernelResult, Dimension } from '../../../mediator/l3_integrate/meta_kernel';
-import { generateResponse, checkLLMAvailability, GenerationContext, callLLM } from '../../../mediator/l0_intake/llm_provider';
+} from '../../interface/types';
+import { GovernorResult } from '../../gate/enforcement/domain_governor';
+import { MetaKernelResult, Dimension } from '../../mediator/l3_integrate/meta_kernel';
+import { generateResponse, checkLLMAvailability, GenerationContext, callLLM } from '../../operational/providers/llm_provider';
 
 // ============================================
 // TYPES

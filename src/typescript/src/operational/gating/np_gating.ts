@@ -18,8 +18,8 @@
  * - El-Yaniv & Wiener (2010): Selective classification
  */
 
-import { DimensionalState } from '../../mediator/l0_intake/dimensional_system';
-import { getBoostedExistentialScore, LexiconMatch } from '../../mediator/l0_intake/existential_lexicon';
+import { DimensionalState } from '../../operational/detectors/dimensional_system';
+import { getBoostedExistentialScore, LexiconMatch } from '../../operational/detectors/existential_lexicon';
 
 // ============================================
 // TYPES

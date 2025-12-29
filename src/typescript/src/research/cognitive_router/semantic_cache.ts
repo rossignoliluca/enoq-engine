@@ -17,7 +17,7 @@
  * - Must add ≤10ms latency for similarity search
  */
 
-import { RegimeClassification } from '../../mediator/l0_intake/llm_detector_v2';
+import { RegimeClassification } from '../../operational/detectors/llm_detector_v2';
 import { SupportedLanguage } from '../../interface/types';
 
 // ============================================

@@ -25,10 +25,10 @@ import {
   ExecutionContext,
   RuntimeClass,
   RUNTIME_CAPABILITIES,
-} from '../runtimes/enoq/pipeline/l2_execution';
-import { checkLLMAvailability } from '../mediator/l0_intake/llm_provider';
+} from '../runtime/pipeline/l2_execution';
+import { checkLLMAvailability } from '../operational/providers/llm_provider';
 import { FieldState, ProtocolSelection, SupportedLanguage } from '../interface/types';
-import { GovernorResult } from '../gate/geometry_normative/domain_governor';
+import { GovernorResult } from '../gate/enforcement/domain_governor';
 import { MetaKernelResult } from '../mediator/l3_integrate/meta_kernel';
 
 // ============================================

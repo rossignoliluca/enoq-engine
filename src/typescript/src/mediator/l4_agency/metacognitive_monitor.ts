@@ -20,7 +20,7 @@
  */
 
 import { FieldState, HumanDomain } from '../../interface/types';
-import { DimensionalState } from '../l0_intake/dimensional_system';
+import { DimensionalState } from '../../operational/detectors/dimensional_system';
 import { ConsensusState, SwarmState } from '../l4_agency/agent_swarm';
 
 // ============================================

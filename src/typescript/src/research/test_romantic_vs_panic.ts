@@ -3,7 +3,7 @@
  */
 
 import { ConcrescenceEngine } from '../mediator/concrescence/concrescence_engine';
-import { createSession } from '../runtimes/enoq/pipeline/pipeline';
+import { createSession } from '../runtime/pipeline/pipeline';
 
 async function testRomanticVsPanic() {
   console.log('\n========================================');

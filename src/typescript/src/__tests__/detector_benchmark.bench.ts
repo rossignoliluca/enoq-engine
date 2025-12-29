@@ -29,7 +29,7 @@
  * RUN: npx jest detector_benchmark.test.ts
  */
 
-import { DimensionalDetector, VerticalDimension, DimensionalState } from '../mediator/l0_intake/dimensional_system';
+import { DimensionalDetector, VerticalDimension, DimensionalState } from '../operational/detectors/dimensional_system';
 import { BENCHMARK_CASES, BenchmarkCase } from '../benchmarks/cases/benchmark_cases';
 
 // ============================================

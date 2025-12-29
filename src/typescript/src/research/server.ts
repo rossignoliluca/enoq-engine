@@ -12,11 +12,11 @@
  */
 
 import * as http from 'http';
-import { createENOQ, field } from '../../../research/genesis';
-import { GrownSystem } from '../../../research/genesis/grow';
-import { SystemState } from '../../../research/genesis/energy';
-import { OpenAIConnector, GenerationResult } from '../../../research/genesis/llm';
-import { getRegulatoryStore } from '../../../gate/withdrawal/regulatory_store';
+import { createENOQ, field } from './genesis';
+import { GrownSystem } from './genesis/grow';
+import { SystemState } from './genesis/energy';
+import { OpenAIConnector, GenerationResult } from './genesis/llm';
+import { getRegulatoryStore } from '../gate/withdrawal/regulatory_store';
 
 // ============================================
 // CONFIGURATION

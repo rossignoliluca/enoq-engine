@@ -16,14 +16,14 @@
  */
 
 import { FieldState, ProtocolSelection, SupportedLanguage, HumanDomain, Flag } from '../../interface/types';
-import { enoq, Session, PipelineResult, PipelineTrace, createSession } from '../../runtimes/enoq/pipeline/pipeline';
+import { enoq, Session, PipelineResult, PipelineTrace, createSession } from '../../runtime/pipeline/pipeline';
 import { totalSystem, TotalSystemOutput, ProcessingContext } from '../l4_agency/total_system';
-import { DimensionalState } from '../l0_intake/dimensional_system';
+import { DimensionalState } from '../../operational/detectors/dimensional_system';
 import { TemporalAnalysis } from '../l4_agency/temporal_engine';
 import { ConsensusState } from '../l4_agency/agent_swarm';
 import { MetacognitiveReport } from '../l4_agency/metacognitive_monitor';
 import { Episode, SemanticPattern, UserModel, memorySystem } from '../l4_agency/memory_system';
-import { SafetyFloor } from '../l0_intake/ultimate_detector';
+import { SafetyFloor } from '../../operational/detectors/ultimate_detector';
 
 // ============================================
 // TYPES: PREHENSION

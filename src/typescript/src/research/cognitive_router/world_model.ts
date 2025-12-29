@@ -23,7 +23,7 @@
  * - Must not cause false positives from incorrect predictions
  */
 
-import { DimensionalState, VerticalDimension } from '../../mediator/l0_intake/dimensional_system';
+import { DimensionalState, VerticalDimension } from '../../operational/detectors/dimensional_system';
 
 // ============================================
 // TYPES

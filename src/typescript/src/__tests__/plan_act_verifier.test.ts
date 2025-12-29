@@ -29,7 +29,7 @@ import {
   createEmergencyPlan,
   createVModePlan,
 } from '../mediator/l5_transform/response_plan';
-import { EarlySignals } from '../mediator/l0_intake/early_signals';
+import { EarlySignals } from '../operational/signals/early_signals';
 
 // ============================================
 // HELPER: Create test plans

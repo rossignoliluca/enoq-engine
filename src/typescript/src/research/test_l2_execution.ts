@@ -13,9 +13,9 @@ import {
   SURFACE_TEMPLATES,
   RUNTIME_CAPABILITIES,
   hashExecutionContext,
-} from '../runtimes/enoq/pipeline/l2_execution';
+} from '../runtime/pipeline/l2_execution';
 import { FieldState, ProtocolSelection, ForbiddenAction, RequiredAction } from '../interface/types';
-import { GovernorResult } from '../gate/geometry_normative/domain_governor';
+import { GovernorResult } from '../gate/enforcement/domain_governor';
 import { MetaKernelResult, createDefaultState } from '../mediator/l3_integrate/meta_kernel';
 
 // ============================================
