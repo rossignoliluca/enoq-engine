@@ -13,22 +13,68 @@ ENOQ-CORE/
 ├── AXIS/                        # FROZEN constitutional ground
 │   ├── AXIOMS.md                # 12 axioms
 │   ├── INVARIANTS.md            # INV-001 to INV-011
-│   └── RUBICON.md               # Decision threshold
+│   ├── RUBICON.md               # Decision threshold
+│   └── HASH_FREEZE.md           # Cryptographic verification
 │
 ├── src/typescript/src/
-│   ├── core/                    # CANONICAL TARGET
-│   │   ├── modules/             # 9 organs with READMEs
+│   ├── interface/               # Shared types and contracts
+│   │
+│   ├── core/                    # CANONICAL TARGET (not yet wired)
+│   │   ├── modules/             # 9 modules with READMEs
 │   │   ├── pipeline/            # Orchestration
 │   │   └── signals/             # Event system
 │   │
 │   ├── runtime/                 # CURRENT ENTRYPOINT (enoq())
-│   ├── gate/                    # Legacy active (→ core/modules/)
-│   ├── operational/             # Legacy active (→ core/modules/)
-│   ├── mediator/                # Legacy active (→ core/modules/)
-│   └── external/                # LLM providers, cache
+│   │   ├── pipeline/            # pipeline.ts, l2_execution.ts
+│   │   ├── io/                  # cli.ts, interactive_session.ts
+│   │   └── quarantine/          # Isolated experimental code
+│   │
+│   ├── gate/                    # Legacy active → Normative gating
+│   │   ├── classifier/          # Request classification
+│   │   ├── enforcement/         # ADS, domain governor, 2nd order
+│   │   ├── invariants/          # AXIS enforcement (axis.ts)
+│   │   ├── protocols/           # Response protocols
+│   │   ├── verification/        # S5_verify, plan_act_verifier
+│   │   └── withdrawal/          # Lifecycle, regulatory store
+│   │
+│   ├── operational/             # Legacy active → Routing & detection
+│   │   ├── detectors/           # dimensional, ultimate, LLM detectors
+│   │   ├── gating/              # unified_gating (canonical), np_gating
+│   │   ├── providers/           # gate_client, gate_embedded
+│   │   └── signals/             # early_signals.ts
+│   │
+│   ├── mediator/                # Legacy active → Cognitive processing
+│   │   ├── l1_clarify/          # perception.ts
+│   │   ├── l2_reflect/          # selection, stochastic_field
+│   │   ├── l3_integrate/        # meta_kernel, disciplines
+│   │   ├── l4_agency/           # total_system, agent_swarm
+│   │   ├── l5_transform/        # generation, plan_renderer
+│   │   └── concrescence/        # concrescence_engine
+│   │
+│   ├── external/                # External dependencies
+│   │   ├── cache/               # llm_cache (only cache location)
+│   │   └── providers/           # LLM provider abstractions
+│   │
+│   ├── surfaces/                # External interfaces (placeholders)
+│   │   ├── cli/                 # CLI interface
+│   │   ├── sdk/                 # SDK (future)
+│   │   └── api/                 # API (future)
+│   │
+│   ├── experimental/            # Research, not production
+│   │   ├── genesis/             # Self-building system
+│   │   ├── cognitive_router/    # Adaptive routing research
+│   │   └── legacy/              # Deprecated code
+│   │
+│   ├── benchmarks/              # Performance benchmarks
+│   │   ├── cases/               # Test case definitions
+│   │   └── artifacts/           # Benchmark results (JSON)
+│   │
+│   └── __tests__/               # Jest test suites (25 files)
 │
-├── docs/REPO_CONTRACT.md        # FROZEN architecture rules
-└── experimental/                # Not production code
+└── docs/
+    ├── REPO_CONTRACT.md         # FROZEN architecture rules
+    ├── INDEX.md                 # Documentation index
+    └── legacy/                  # Outdated docs
 ```
 
 ---
@@ -85,10 +131,17 @@ npx ts-node src/runtime/io/interactive_session.ts
 
 | Version | Date | Changes |
 |---------|------|---------|
-| **v6.3** | 2024-12-29 | Docs cleanup: AXIS.md→AXIS_PHILOSOPHY.md, CONSTITUTION→legacy |
-| **v6.2** | 2024-12-29 | Scatter cleanup: legacy banners, research/ consolidation |
-| **v6.1** | 2024-12-29 | Documentation coherence: 9 READMEs, INDEX updates |
-| **v6.0** | 2024-12-29 | AXIS constitutional freeze (12 axioms, 11 invariants) |
+| **v6.4** | 2025-12-29 | Full audit + duplicate cleanup, README structure complete |
+| **v6.3** | 2025-12-29 | Docs cleanup: AXIS.md→AXIS_PHILOSOPHY.md, CONSTITUTION→legacy |
+| **v6.2** | 2025-12-29 | Scatter cleanup: legacy banners, research/ consolidation |
+| **v6.1** | 2025-12-29 | Documentation coherence: 9 READMEs, INDEX updates |
+| **v6.0** | 2025-12-29 | AXIS constitutional freeze (12 axioms, 11 invariants) |
+
+### v6.4 Details
+- Full repository audit: all 11 folders verified against REPO_CONTRACT
+- Removed `experimental/concrescence/` (duplicate of `mediator/concrescence/`)
+- Removed `experimental/field_integration.ts` (duplicate of `runtime/quarantine/`)
+- README structure diagram now shows all folders (interface, surfaces, benchmarks, __tests__)
 
 ### v6.3 Details
 - `docs/AXIS.md` → `docs/AXIS_PHILOSOPHY.md` (disambiguate from AXIS/)

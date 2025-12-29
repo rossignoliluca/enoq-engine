@@ -10,25 +10,11 @@
   },
   "scripts": {
     "build": "tsc",
-    "start": "ts-node src/cli.ts",
-    "server": "ts-node src/server.ts",
-    "cli": "ts-node src/cli.ts",
-    "enoq": "ts-node src/enoq_cli.ts",
-    "enoq:debug": "ts-node src/enoq_cli.ts --debug --field",
-    "enoq:build": "ts-node src/genesis/self_builder/builder_cli.ts",
+    "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:legacy": "ts-node src/test_pipeline.ts",
-    "test:all:legacy": "ts-node src/test_S5_verify.ts && ts-node src/test_meta_kernel.ts && ts-node src/test_l2_execution.ts && ts-node src/test_pipeline.ts && ts-node src/test_gate_integration.ts",
-    "test:s5": "ts-node src/test_S5_verify.ts",
-    "test:metakernel": "ts-node src/test_meta_kernel.ts",
-    "test:l2": "ts-node src/test_l2_execution.ts",
-    "test:pipeline": "ts-node src/test_pipeline.ts",
-    "test:gate": "ts-node src/test_gate_integration.ts",
-    "test:interactive": "ts-node src/test_interactive.ts",
-    "test:romantic": "ts-node src/test_romantic_vs_panic.ts",
-    "test:concrescence": "ts-node src/test_concrescence.ts"
+    "interactive": "ts-node src/runtime/io/interactive_session.ts"
   },
   "keywords": [
     "enoq",

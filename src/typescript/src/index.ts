@@ -1,26 +1,12 @@
 /**
  * ENOQ - Autopoietic Viable System for Human Empowerment
  *
- * ENOQ is the total system, composed of nine organs including LIMEN (boundary).
- * See ADR-007 for canonical architecture.
- *
- * The Nine Organs:
- * - LIMEN: Boundary, filtering, protection (S5)
- * - SENSUS: Perception, field reading (S4)
- * - NEXUS: Memory (S2)
- * - LOGOS: Planning, selection (S3)
- * - ERGON: Execution, output (S1)
- * - CHRONOS: Temporal patterns (S2)
- * - TELOS: Verification, withdrawal (S5)
- * - IMMUNIS: Anti-drift, anti-dependency (S5)
- * - META: Self-observation, confidence (S4)
- *
  * Architecture:
  * - interface/: Shared contracts and types
- * - gate/: Normative gating (LIMEN, TELOS, IMMUNIS organs)
- * - operational/: Routing & detection (SENSUS organ)
- * - mediator/: Cognitive processing (LOGOS, ERGON, NEXUS, CHRONOS, META organs)
- * - runtime/: Execution layer
+ * - gate/: Normative gating (classification, enforcement, verification)
+ * - operational/: Routing & detection (detectors, gating, providers)
+ * - mediator/: Cognitive processing (L1-L5 layers)
+ * - runtime/: Execution layer (pipeline, I/O)
  *
  * Scientific basis:
  * - Whitehead: Process Philosophy, Concrescence

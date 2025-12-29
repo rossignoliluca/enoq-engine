@@ -9,7 +9,6 @@
 | [AXIOMS.md](./AXIOMS.md) | 12 infinite priors (what ENOQ IS) |
 | [INVARIANTS.md](./INVARIANTS.md) | 11 structural constraints (what MUST hold) |
 | [RUBICON.md](./RUBICON.md) | Existential threshold specification |
-| [ORGANS.md](./ORGANS.md) | Nine organs of the viable system |
 | [HASH_FREEZE.md](./HASH_FREEZE.md) | Cryptographic verification of freeze |
 
 ## Verification

@@ -2,6 +2,7 @@
 
 **Status:** FROZEN — Cryptographic Seal
 **Purpose:** Immutable verification of constitutional documents
+**Last Updated:** 2025-12-29
 
 ---
 
@@ -19,10 +20,9 @@
 
 | Document | Version | SHA-256 Hash | Freeze Date |
 |----------|---------|--------------|-------------|
-| AXIOMS.md | 1.0 | `[PENDING COMPUTATION]` | 2024-12-29 |
-| INVARIANTS.md | 1.0 | `[PENDING COMPUTATION]` | 2024-12-29 |
-| RUBICON.md | 1.0 | `[PENDING COMPUTATION]` | 2024-12-29 |
-| ORGANS.md | 1.0 | `[PENDING COMPUTATION]` | 2024-12-29 |
+| AXIOMS.md | 1.0 | `f77cf67f322bda95132c3b3cb412eaaca6e0d879e4300c44b9e2122cebc36924` | 2025-12-29 |
+| INVARIANTS.md | 1.0 | `f8f936f00f6f2e69c7183afb24df36996b205d63949e4202919e0386e006647e` | 2025-12-29 |
+| RUBICON.md | 1.0 | `c0e3a2a85cbb4603890927a8a77e4e8dd09ff3106b0b6ca4220382b2113d71d1` | 2025-12-29 |
 
 ---
 
@@ -38,28 +38,18 @@ shasum -a 256 AXIS/AXIOMS.md
 # Must match exactly
 ```
 
-### Automated Verification
+### Verify All Documents
 
-```typescript
-import { createHash } from 'crypto';
-import { readFileSync } from 'fs';
-
-function verifyAxisDocument(path: string, expectedHash: string): boolean {
-  const content = readFileSync(path);
-  const actualHash = createHash('sha256').update(content).digest('hex');
-  return actualHash === expectedHash;
-}
+```bash
+cd ENOQ-CORE
+shasum -a 256 AXIS/AXIOMS.md AXIS/INVARIANTS.md AXIS/RUBICON.md
 ```
 
-### CI Integration
-
-```yaml
-# .github/workflows/axis-integrity.yml
-- name: Verify AXIS integrity
-  run: |
-    for doc in AXIS/*.md; do
-      ./scripts/verify-axis-hash.sh "$doc"
-    done
+Expected output:
+```
+f77cf67f322bda95132c3b3cb412eaaca6e0d879e4300c44b9e2122cebc36924  AXIS/AXIOMS.md
+f8f936f00f6f2e69c7183afb24df36996b205d63949e4202919e0386e006647e  AXIS/INVARIANTS.md
+c0e3a2a85cbb4603890927a8a77e4e8dd09ff3106b0b6ca4220382b2113d71d1  AXIS/RUBICON.md
 ```
 
 ---
@@ -83,34 +73,19 @@ When AXIS documents are amended (per AXIOM IX amendment process):
 
 | Version | Hash | Date | Status |
 |---------|------|------|--------|
-| 1.0 | `[PENDING]` | 2024-12-29 | ACTIVE |
+| 1.0 | `f77cf67f...cebc36924` | 2025-12-29 | ACTIVE |
 
 ### INVARIANTS.md
 
 | Version | Hash | Date | Status |
 |---------|------|------|--------|
-| 1.0 | `[PENDING]` | 2024-12-29 | ACTIVE |
+| 1.0 | `f8f936f0...e006647e` | 2025-12-29 | ACTIVE |
 
 ### RUBICON.md
 
 | Version | Hash | Date | Status |
 |---------|------|------|--------|
-| 1.0 | `[PENDING]` | 2024-12-29 | ACTIVE |
-
-### ORGANS.md
-
-| Version | Hash | Date | Status |
-|---------|------|------|--------|
-| 1.0 | `[PENDING]` | 2024-12-29 | ACTIVE |
-
----
-
-## External Registry
-
-Hashes are also stored in:
-- Git tag: `axis-v1.0`
-- GitHub Release: ENOQ v1.0.0
-- [Future: External immutable registry]
+| 1.0 | `c0e3a2a8...113d71d1` | 2025-12-29 | ACTIVE |
 
 ---
 

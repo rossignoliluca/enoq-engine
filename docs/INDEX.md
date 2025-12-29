@@ -35,7 +35,6 @@
 | [AXIOMS](/AXIS/AXIOMS.md) | 12 frozen axioms (infinite priors) |
 | [INVARIANTS](/AXIS/INVARIANTS.md) | 11 structural constraints |
 | [RUBICON](/AXIS/RUBICON.md) | Existential threshold specification |
-| [ORGANS](/AXIS/ORGANS.md) | Nine organs specification |
 | [HASH_FREEZE](/AXIS/HASH_FREEZE.md) | Cryptographic verification |
 
 ---
@@ -48,15 +47,8 @@
 |----------|---------|
 | [ARCHITECTURE.md](/src/typescript/docs/ARCHITECTURE.md) | Layer overview, import boundaries |
 | [SYSTEM_MAP.md](/src/typescript/docs/SYSTEM_MAP.md) | File-by-file directory guide |
-| [ORGAN_MAP.md](./ORGAN_MAP.md) | Code → organs mapping |
 | [ADR Index](/src/typescript/docs/decisions/) | Architecture Decision Records |
 
-### Session Recovery
-
-| Document | Purpose |
-|----------|---------|
-| [SESSION_BOOTSTRAP.md](./SESSION_BOOTSTRAP.md) | Claude context recovery |
-| [ARCHITECTURE_TOTAL.md](./ARCHITECTURE_TOTAL.md) | Master architecture reference |
 
 ### Specifications
 
@@ -89,22 +81,6 @@
 
 ---
 
-## The Nine Organs
-
-| Organ | Function | VSM |
-|-------|----------|-----|
-| **LIMEN** | Boundary, filtering | S5 |
-| **SENSUS** | Perception, field reading | S4 |
-| **NEXUS** | Memory | S2 |
-| **LOGOS** | Planning, selection | S3 |
-| **ERGON** | Execution, output | S1 |
-| **CHRONOS** | Temporal patterns | S2 |
-| **TELOS** | Verification, withdrawal | S5 |
-| **IMMUNIS** | Anti-drift, anti-dependency | S5 |
-| **META** | Self-observation | S4 |
-
----
-
 ## Import Boundaries
 
 **Current (legacy active):**
@@ -130,4 +106,3 @@ See [CONTRIBUTING.md](/src/typescript/CONTRIBUTING.md) for rules.
 ---
 
 *ENOQ: Autopoietic Viable System for Human Empowerment*
-*LIMEN is one of nine organs (threshold/boundary function)*
