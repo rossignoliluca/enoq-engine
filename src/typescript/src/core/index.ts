@@ -259,8 +259,21 @@ export {
 } from '../gate/invariants/axis';
 
 // =============================================================================
-// PIPELINE - runtime/pipeline/
+// PIPELINE - core/pipeline/ (CANONICAL) + runtime/pipeline/ (legacy)
 // =============================================================================
+
+// CANONICAL: Core orchestrator (Slice 1 wiring)
+export {
+  enoqCore,
+  createCoreSession,
+  CoreConfig,
+  CoreResult,
+  PipelineState,
+  PipelineSignal,
+  SignalEmitter,
+} from './pipeline/orchestrator';
+
+// LEGACY: Runtime pipeline (backwards compat)
 export {
   enoq,
   createSession,
