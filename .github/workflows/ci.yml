@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: src/typescript/package-lock.json
+
+      - name: Install dependencies
+        working-directory: src/typescript
+        run: npm ci
+
+      - name: TypeScript compile check
+        working-directory: src/typescript
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        working-directory: src/typescript
+        run: npm test -- --passWithNoTests --testPathIgnorePatterns="benchmark|bench"
+
+      - name: Check import boundaries
+        working-directory: src/typescript
+        run: ./scripts/check-imports.sh
+
+  naming-guard:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for naming drift (enoq-core outside legacy)
+        run: |
+          echo "Checking for 'enoq-core' outside docs/legacy/..."
+
+          # Find occurrences of enoq-core outside legacy
+          VIOLATIONS=$(grep -r "enoq-core" --include="*.json" --include="*.md" --include="*.ts" . \
+            | grep -v "docs/legacy" \
+            | grep -v "node_modules" \
+            | grep -v ".git" \
+            || true)
+
+          if [ -n "$VIOLATIONS" ]; then
+            echo "ERROR: Found 'enoq-core' outside docs/legacy/:"
+            echo "$VIOLATIONS"
+            echo ""
+            echo "Repository identity is LIMEN-CORE. Use 'limen-core' instead."
+            exit 1
+          fi
+
+          echo "OK: No naming drift detected"
