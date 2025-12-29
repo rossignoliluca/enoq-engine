@@ -140,14 +140,8 @@ export {
   DEFAULT_UNIFIED_CONFIG,
 } from './operational/gating/unified_gating';
 
-export {
-  NPGating,
-  npGating,
-  NPGatingConfig,
-  NPGatingDecision,
-  NPGatingStats,
-  DEFAULT_NP_CONFIG,
-} from './operational/gating/np_gating';
+// NPGating is internal to UnifiedGating - not exported publicly
+// Use UnifiedGating for all gating needs
 
 // Thresholds
 export {

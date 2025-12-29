@@ -16,7 +16,7 @@ import * as path from 'path';
 
 import { DimensionalDetector } from '../../operational/detectors/dimensional_system';
 import { BENCHMARK_CASES, BenchmarkCase } from '../../benchmarks/cases/benchmark_cases';
-import { ScientificGating } from '../../operational/gating/scientific_gating';
+import { ScientificGating } from '../legacy/scientific_gating';
 import {
   calibrateThreshold,
   CalibrationResult,

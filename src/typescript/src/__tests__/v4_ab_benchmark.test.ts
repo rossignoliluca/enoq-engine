@@ -17,7 +17,7 @@ import { BENCHMARK_CASES, BenchmarkCase } from '../benchmarks/cases/benchmark_ca
 type BenchmarkExpected = BenchmarkCase['expected'];
 import { LLMDetectorV2, LLMDetectorConfig, LLMDetectorSignals } from '../operational/detectors/llm_detector_v2';
 import { DimensionalDetector } from '../operational/detectors/dimensional_system';
-import { ScientificGating, GatingStats } from '../operational/gating/scientific_gating';
+import { ScientificGating, GatingStats } from '../experimental/legacy/scientific_gating';
 import { LLMDetectorCache, CacheStats } from '../external/cache/llm_cache';
 import { SupportedLanguage } from '../interface/types';
 import * as fs from 'fs';

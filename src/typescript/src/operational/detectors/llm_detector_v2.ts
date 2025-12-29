@@ -29,7 +29,7 @@ import {
 import { DimensionalDetector, DimensionalState } from './dimensional_system';
 import { EarlySignals, MetacognitiveSignal, DEADLINE_CONFIG } from '../signals/early_signals';
 import { LLMDetectorCache, CacheStats } from '../../external/cache/llm_cache';
-import { ScientificGating, GatingDecision as ScientificGatingDecision, GatingStats } from '../../operational/gating/scientific_gating';
+import { ScientificGating, GatingDecision as ScientificGatingDecision, GatingStats } from '../../experimental/legacy/scientific_gating';
 
 // Re-export shared types for backwards compatibility
 export type { RegimeClassification, ExistentialSpecificity } from '../../interface/types';
