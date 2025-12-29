@@ -135,6 +135,7 @@ npx ts-node src/runtime/io/interactive_session.ts
 
 | Version | Date | Changes |
 |---------|------|---------|
+| **v6.9.1** | 2025-12-30 | FAST PATH architecture + test stabilization |
 | **v6.9** | 2025-12-29 | MAIL traversal: first real crossing through geometry |
 | **v6.8** | 2025-12-29 | AXIS-CHECK: executable guardrail + implementation map |
 | **v6.7** | 2025-12-29 | Slice 2: core/modules/boundary + verification wired |
@@ -150,6 +151,8 @@ npx ts-node src/runtime/io/interactive_session.ts
 | **v6.0** | 2025-12-29 | AXIS constitutional freeze (12 axioms, 11 invariants) |
 
 ### Recent Details
+
+**v6.9.1**: FAST PATH architecture - `permit() → act(callLLM) → verify → stop`. Re-export from orchestrator for axis-check compliance.
 
 **v6.9**: MAIL traversal - first end-to-end crossing: `npx ts-node src/surfaces/cli/mail.ts`
 
