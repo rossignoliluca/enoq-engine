@@ -2,7 +2,7 @@
 
 Constitutional cognitive core. AXIS + Pipeline + 9 Modules.
 
-> ENOQ is the system. LIMEN is one of nine modules.
+> Autopoietic viable system for human empowerment.
 
 ---
 
