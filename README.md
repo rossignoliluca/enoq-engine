@@ -16,19 +16,16 @@ ENOQ-CORE/
 │   └── RUBICON.md               # Decision threshold
 │
 ├── src/typescript/src/
-│   ├── core/modules/            # 9 modules with READMEs
-│   │   ├── boundary (LIMEN)
-│   │   ├── perception (SENSUS)
-│   │   ├── memory (NEXUS)
-│   │   ├── reasoning (LOGOS)
-│   │   ├── execution (ERGON)
-│   │   ├── temporal (CHRONOS)
-│   │   ├── verification (TELOS)
-│   │   ├── defense (IMMUNIS)
-│   │   └── metacognition (META)
-│   ├── runtime/pipeline/        # State machine S0→S6
-│   ├── operational/gating/      # unified_gating.ts (canonical)
-│   └── external/cache/          # Caching
+│   ├── core/                    # CANONICAL TARGET
+│   │   ├── modules/             # 9 organs with READMEs
+│   │   ├── pipeline/            # Orchestration
+│   │   └── signals/             # Event system
+│   │
+│   ├── runtime/                 # CURRENT ENTRYPOINT (enoq())
+│   ├── gate/                    # Legacy active (→ core/modules/)
+│   ├── operational/             # Legacy active (→ core/modules/)
+│   ├── mediator/                # Legacy active (→ core/modules/)
+│   └── external/                # LLM providers, cache
 │
 ├── docs/REPO_CONTRACT.md        # FROZEN architecture rules
 └── experimental/                # Not production code
@@ -88,6 +85,8 @@ npx ts-node src/runtime/io/interactive_session.ts
 
 | Tag | Meaning |
 |-----|---------|
+| `v6.1` | Documentation coherence, READMEs |
+| `v6.0` | AXIS constitutional freeze |
 | `v0.1-geometry-clean` | Structure frozen, invariants defined |
 
 ---

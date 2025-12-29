@@ -1,5 +1,7 @@
 # operational/
 
+> **Legacy active structure.** Canonical target is `src/typescript/src/core/` (modules + pipeline + signals).
+
 > **Operational Geometry** - How to route and detect.
 
 ## Purpose

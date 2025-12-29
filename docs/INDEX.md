@@ -4,6 +4,17 @@
 
 ---
 
+## Canonical Entrypoints
+
+| Path | Role |
+|------|------|
+| [AXIS/](/AXIS/) | Constitutional ground (frozen) |
+| [REPO_CONTRACT.md](./REPO_CONTRACT.md) | Repository rules (6 frozen) |
+| [src/typescript/src/core/](/src/typescript/src/core/) | **Canonical target** (modules + pipeline + signals) |
+| [src/typescript/src/runtime/](/src/typescript/src/runtime/) | Current entrypoint (`enoq()`) |
+
+---
+
 ## Quick Links
 
 | Document | Description |
@@ -96,8 +107,14 @@
 
 ## Import Boundaries
 
+**Current (legacy active):**
 ```
 interface/ <-- gate/ <-- operational/ <-- mediator/ <-- runtime/
+```
+
+**Canonical target:**
+```
+core/interface/ <-- core/modules/ <-- core/pipeline/ <-- core/signals/
 ```
 
 See [CONTRIBUTING.md](/src/typescript/CONTRIBUTING.md) for rules.

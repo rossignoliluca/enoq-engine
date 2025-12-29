@@ -1,5 +1,7 @@
 # gate/
 
+> **Legacy active structure.** Canonical target is `src/typescript/src/core/` (modules + pipeline + signals).
+
 > **Normative Geometry** - What MUST NOT happen.
 
 ## Purpose

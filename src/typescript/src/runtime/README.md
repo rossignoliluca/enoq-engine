@@ -1,5 +1,7 @@
 # runtime/
 
+> **Legacy active structure.** Canonical target is `src/typescript/src/core/` (modules + pipeline + signals).
+
 > **Execution Layer** - How to act.
 
 ## Purpose

@@ -78,7 +78,7 @@
   },
   "llm_calls": 0,
   "llm_call_rate": 0,
-  "avg_latency_ms": 0.22,
+  "avg_latency_ms": 0.14,
   "p95_latency_ms": 1,
   "failures": [
     {
@@ -95,7 +95,7 @@
         "v_mode": false,
         "emergency": false,
         "primary_vertical": "EXISTENTIAL",
-        "latency_ms": 1
+        "latency_ms": 0
       },
       "correct": {
         "v_mode": false,
@@ -417,7 +417,7 @@
         "v_mode": false,
         "emergency": false,
         "primary_vertical": "FUNCTIONAL",
-        "latency_ms": 0
+        "latency_ms": 1
       },
       "correct": {
         "v_mode": false,
@@ -440,7 +440,7 @@
         "v_mode": false,
         "emergency": false,
         "primary_vertical": "EXISTENTIAL",
-        "latency_ms": 1
+        "latency_ms": 0
       },
       "correct": {
         "v_mode": false,

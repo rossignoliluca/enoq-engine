@@ -17,3 +17,8 @@ These files are superseded by production implementations:
 **Do not import from this folder in production code.**
 
 Kept for reference only.
+
+## research_artifacts/
+
+Research benchmark outputs moved from `src/typescript/research/`.
+The research/cognitive_router code was a stale duplicate of `experimental/cognitive_router/`.

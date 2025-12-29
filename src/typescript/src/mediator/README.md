@@ -1,5 +1,7 @@
 # mediator/
 
+> **Legacy active structure.** Canonical target is `src/typescript/src/core/` (modules + pipeline + signals).
+
 > **Cognitive Mediation** - How to think.
 
 ## Purpose
