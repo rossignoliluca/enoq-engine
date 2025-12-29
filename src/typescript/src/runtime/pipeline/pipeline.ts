@@ -50,7 +50,7 @@ import {
   curveSelection,
   getFieldTraceInfo,
   FieldTraceInfo
-} from '../experimental/field_integration';
+} from '../quarantine/field_integration';
 import { DimensionalState } from '../../operational/detectors/dimensional_system';
 import { hybridDetector } from '../../operational/detectors/hybrid_detector';
 import {

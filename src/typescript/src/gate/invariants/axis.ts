@@ -154,25 +154,24 @@ const FORBIDDEN_PATTERNS = Object.freeze([
 // ============================================
 
 export class Axis {
-  private readonly invariants: typeof CONSTITUTIONAL_INVARIANTS;
-  private readonly forbiddenPatterns: typeof FORBIDDEN_PATTERNS;
-  private decisionLog: AxisDecision[] = [];
-  private frozen: boolean = false;
+  private readonly invariants: Readonly<typeof CONSTITUTIONAL_INVARIANTS>;
+  private readonly forbiddenPatterns: Readonly<typeof FORBIDDEN_PATTERNS>;
+
+  /**
+   * Decision log is append-only. Entries are frozen on insertion.
+   * Use getAuditLog() to read (returns ReadonlyArray).
+   */
+  private readonly decisionLog: Readonly<AxisDecision>[] = [];
 
   constructor() {
+    // Invariants and patterns are already frozen at module level
     this.invariants = CONSTITUTIONAL_INVARIANTS;
     this.forbiddenPatterns = FORBIDDEN_PATTERNS;
 
-    // Freeze self after construction
-    this.freeze();
-  }
-
-  /**
-   * Freeze the AXIS instance to prevent modification
-   */
-  private freeze(): void {
-    this.frozen = true;
-    Object.freeze(this);
+    // Note: We do NOT freeze the instance itself because:
+    // 1. Shallow freeze doesn't protect nested objects
+    // 2. We need to append to decisionLog (append-only is enforced by design)
+    // 3. The frozen fields (invariants, forbiddenPatterns) are already immutable
   }
 
   /**
@@ -181,9 +180,9 @@ export class Axis {
    * Returns VALID | INVALID | STOP
    *
    * This is the single point of constitutional control.
-   * Every action ENOQ wants to take must pass through here.
+   * Every action LIMEN wants to take must pass through here.
    */
-  validate(action: ProposedAction): AxisDecision {
+  validate(action: ProposedAction): Readonly<AxisDecision> {
     // Check identity-affecting actions
     if (action.affects_identity) {
       return this.createDecision('INVALID', 'INV-009', 'Action would affect user identity');
@@ -288,7 +287,7 @@ export class Axis {
   /**
    * Force STOP - emergency brake
    */
-  forceStop(reason: string): AxisDecision {
+  forceStop(reason: string): Readonly<AxisDecision> {
     const decision = this.createDecision('STOP', 'EMERGENCY', reason);
     console.error('[AXIS] FORCE STOP:', reason);
     return decision;
@@ -296,12 +295,17 @@ export class Axis {
 
   /**
    * Create and log a decision
+   *
+   * IMMUTABILITY GUARANTEE:
+   * - Each decision is frozen before storage
+   * - Log is append-only (push only, no splice/pop/shift)
+   * - Returned decision is frozen
    */
   private createDecision(
     verdict: AxisVerdict,
     invariant: string,
     reason: string
-  ): AxisDecision {
+  ): Readonly<AxisDecision> {
     const decision: AxisDecision = {
       verdict,
       reason,
@@ -309,22 +313,29 @@ export class Axis {
       timestamp: new Date()
     };
 
-    // Immutable log - only append, never modify
-    this.decisionLog.push(decision);
+    // Freeze the decision before storage (immutable entry)
+    const frozenDecision = Object.freeze(decision);
+
+    // Append-only log
+    this.decisionLog.push(frozenDecision);
 
     // Log for audit
     if (verdict !== 'VALID') {
       console.warn(`[AXIS] ${verdict}: ${reason} (${invariant})`);
     }
 
-    return decision;
+    return frozenDecision;
   }
 
   /**
-   * Get audit log (read-only)
+   * Get audit log (read-only view)
+   *
+   * Returns a ReadonlyArray of frozen decisions.
+   * Caller cannot modify the log or its entries.
    */
-  getAuditLog(): readonly AxisDecision[] {
-    return [...this.decisionLog];
+  getAuditLog(): ReadonlyArray<Readonly<AxisDecision>> {
+    // Return defensive copy to prevent external mutation of array
+    return Object.freeze([...this.decisionLog]);
   }
 
   /**
@@ -345,7 +356,7 @@ export class Axis {
    * Validate that a response doesn't violate any invariants
    * Convenience method for quick checks
    */
-  validateResponse(response: string): AxisDecision {
+  validateResponse(response: string): Readonly<AxisDecision> {
     return this.validate({
       type: 'response',
       content: response
@@ -370,7 +381,7 @@ export { axis };
 /**
  * Quick validate a response
  */
-export function validateResponse(response: string): AxisDecision {
+export function validateResponse(response: string): Readonly<AxisDecision> {
   return axis.validateResponse(response);
 }
 
