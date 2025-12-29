@@ -14,17 +14,19 @@ ENOQ-CORE/
 │   ├── AXIOMS.md                # 12 axioms
 │   ├── INVARIANTS.md            # INV-001 to INV-011
 │   ├── RUBICON.md               # Decision threshold
-│   └── HASH_FREEZE.md           # Cryptographic verification
+│   ├── HASH_FREEZE.md           # Cryptographic verification
+│   └── IMPLEMENTATION_MAP.md    # INV → file path mapping
 │
 ├── src/typescript/src/
 │   ├── interface/               # Shared types and contracts
 │   │
-│   ├── core/                    # CANONICAL TARGET (not yet wired)
-│   │   ├── modules/             # 9 modules with READMEs
-│   │   ├── pipeline/            # Orchestration
-│   │   └── signals/             # Event system
+│   ├── core/                    # CANONICAL ENTRYPOINT (v6.7+)
+│   │   ├── modules/             # boundary + verification WIRED
+│   │   ├── pipeline/            # orchestrator.ts → enoqCore()
+│   │   ├── axis-runtime/        # CONTRACT.md (guardrail)
+│   │   └── signals/             # Event system (stub)
 │   │
-│   ├── runtime/                 # CURRENT ENTRYPOINT (enoq())
+│   ├── runtime/                 # DELEGATED by core (middle processing)
 │   │   ├── pipeline/            # pipeline.ts, l2_execution.ts
 │   │   ├── io/                  # cli.ts, interactive_session.ts
 │   │   └── quarantine/          # Isolated experimental code
