@@ -89,6 +89,7 @@ See [docs/REPO_CONTRACT.md](./docs/REPO_CONTRACT.md):
 4. `enoq()` is the sole entry point surfaces → core
 5. `np_gating.ts` is internal, not exported
 6. `research/` does not exist
+7. Empty canonical directories are intentional scaffolds
 
 ---
 
@@ -131,39 +132,25 @@ npx ts-node src/runtime/io/interactive_session.ts
 
 | Version | Date | Changes |
 |---------|------|---------|
-| **v6.4** | 2025-12-29 | Full audit + duplicate cleanup, README structure complete |
+| **v6.5.1** | 2025-12-29 | Fix broken INDEX.md links |
+| **v6.5** | 2025-12-29 | Docs cleanup: 33 files → legacy, artifacts gitignored |
+| **v6.4.1** | 2025-12-29 | Fix SQLite clear() table name bug (618/618 tests) |
+| **v6.4** | 2025-12-29 | Phase 2 hygiene: scaffolds, dedup, legacy banners |
+| **v6.3.1** | 2025-12-29 | Critical hygiene: scripts, tsconfig, hash freeze |
 | **v6.3** | 2025-12-29 | Docs cleanup: AXIS.md→AXIS_PHILOSOPHY.md, CONSTITUTION→legacy |
 | **v6.2** | 2025-12-29 | Scatter cleanup: legacy banners, research/ consolidation |
 | **v6.1** | 2025-12-29 | Documentation coherence: 9 READMEs, INDEX updates |
 | **v6.0** | 2025-12-29 | AXIS constitutional freeze (12 axioms, 11 invariants) |
 
-### v6.4 Details
-- Full repository audit: all 11 folders verified against REPO_CONTRACT
-- Removed `experimental/concrescence/` (duplicate of `mediator/concrescence/`)
-- Removed `experimental/field_integration.ts` (duplicate of `runtime/quarantine/`)
-- README structure diagram now shows all folders (interface, surfaces, benchmarks, __tests__)
+### Recent Details
 
-### v6.3 Details
-- `docs/AXIS.md` → `docs/AXIS_PHILOSOPHY.md` (disambiguate from AXIS/)
-- `docs/CONSTITUTION.md` → `docs/legacy/` (duplicated AXIS/INVARIANTS.md)
-- `V3_1_RUNTIME_FLOW.md` → `docs/legacy/` (versioned v3.1)
-- Updated 7 docs refs to point to AXIS/INVARIANTS.md
+**v6.5**: Moved 33 unreferenced docs to `docs/legacy/`, added `artifacts/` to .gitignore
 
-### v6.2 Details
-- Added "Legacy active structure" banner to gate/, operational/, mediator/, runtime/
-- Deleted stale `research/` folder (duplicate of experimental/)
-- Fixed broken import in field_integration.ts
-- Established canonical structure: core/ = target, runtime/ = current
+**v6.4.1**: Fixed SQLite `clear()` method using wrong table name (`regulatory_state` → `field_state`)
 
-### v6.1 Details
-- Created READMEs for 9 directories (AXIS, interface, gate, operational, mediator, runtime, surfaces, external, docs/legacy)
-- Added canonical entrypoints section to docs/INDEX.md
-- Updated README structure diagram
+**v6.4**: Canonical empty folder scaffolds, removed orphan `types.ts`, cleaned `research/` refs, `@deprecated` banners on legacy
 
-### v6.0 Details
-- Froze AXIS constitutional documents (AXIOMS, INVARIANTS, RUBICON, ORGANS)
-- Created HASH_FREEZE.md with cryptographic verification
-- Established docs/REPO_CONTRACT.md with 6 frozen rules
+**v6.3.1**: Fixed broken package.json scripts, completed HASH_FREEZE.md, cleaned tsconfig.json
 
 ---
 
