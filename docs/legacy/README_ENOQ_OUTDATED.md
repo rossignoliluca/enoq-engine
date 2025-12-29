@@ -1,3 +1,12 @@
+> **⚠️ OUTDATED DOCUMENT**
+>
+> This document describes the original ENOQ concept before the LIMEN architecture.
+> For current documentation, see [/docs/INDEX.md](/docs/INDEX.md).
+>
+> Preserved for historical reference only.
+
+---
+
 # ENOQ
 
 **A cognitive system that helps people see clearly and close what needs closing.**
