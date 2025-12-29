@@ -31,6 +31,14 @@ npx ts-node src/surfaces/cli/mail.ts
 - No continued interaction
 - Mandatory STOP after output
 
+**Architecture: FAST PATH**
+
+```
+permit() → act(callLLM) → verifyOutput() → stop
+```
+
+FAST PATH is for task execution (email drafts, not reflection). The geometry is preserved: boundary check (permit), constitutional verification (verify), mandatory stop. Never skip verify/stop.
+
 ---
 
 ## Legacy

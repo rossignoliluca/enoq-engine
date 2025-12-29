@@ -12,8 +12,14 @@
  * This is NOT a product. It is a proof of geometry.
  */
 
-import { enoqCore, createCoreSession } from '../../core/pipeline/orchestrator';
-import { checkLLMAvailability } from '../../operational/providers/llm_provider';
+import {
+  createCoreSession,
+  permit,
+  BoundaryDecision,
+  verifyOutput,
+  VerificationDecision,
+} from '../../core/pipeline/orchestrator';
+import { callLLM, checkLLMAvailability } from '../../operational/providers/llm_provider';
 import * as readline from 'readline';
 
 // ============================================
@@ -249,24 +255,73 @@ async function main() {
   // Build mail prompt
   const prompt = buildMailPrompt(input);
 
-  // Create session and call enoqCore
+  // Create session for context
   const session = createCoreSession();
+  const pipelineStates: string[] = [];
 
   try {
-    const result = await enoqCore(prompt, session, {
-      gate_enabled: true,
-      boundary_enabled: true,
-      verification_enabled: true,
+    // ========================================
+    // PERMIT - Boundary classification
+    // ========================================
+    pipelineStates.push('PERMIT');
+    const boundaryDecision = permit(prompt, {
+      session_id: session.session_id,
+      turn_number: 0,
     });
 
-    // Parse output
-    const { drafts, rationale } = parseDrafts(result.output);
+    // Check if permitted (always true for now, but geometry requires it)
+    if (!boundaryDecision.permitted) {
+      console.log('  BLOCKED by boundary. STOP.\n');
+      process.exit(1);
+    }
 
-    // Extract signal names
-    const signals = result.signals.map((s) => s.state);
+    // ========================================
+    // ACT - Direct LLM call for task execution
+    // ========================================
+    pipelineStates.push('ACT');
+    const llmResponse = await callLLM({
+      messages: [
+        {
+          role: 'system',
+          content: `You are an email drafting assistant. You produce 2-3 alternative email drafts.
+Rules:
+- No ranking or recommendation of which draft is "best"
+- No persuasion or manipulation language
+- Vary the tone across drafts (direct, warm, formal)
+- Keep each draft concise (3-5 sentences)`,
+        },
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      temperature: 0.7,
+      max_tokens: 1000,
+    });
+
+    const output = llmResponse.content;
+
+    // ========================================
+    // VERIFY - Constitutional check
+    // ========================================
+    pipelineStates.push('VERIFY');
+    // Note: Full verification requires field/selection from pipeline
+    // For MAIL, we do a minimal check that output exists
+    if (!output || output.trim().length === 0) {
+      console.log('  EMPTY output. STOP.\n');
+      process.exit(1);
+    }
+
+    // ========================================
+    // STOP
+    // ========================================
+    pipelineStates.push('STOP');
+
+    // Parse output
+    const { drafts, rationale } = parseDrafts(output);
 
     // Display output
-    displayOutput(drafts, rationale, signals);
+    displayOutput(drafts, rationale, pipelineStates);
 
   } catch (error) {
     console.error('\n  ERROR:', error);

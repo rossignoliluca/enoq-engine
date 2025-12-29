@@ -211,3 +211,8 @@ export function createCoreSession(userId?: string): Session {
 // ============================================
 
 export type { Session, PipelineResult, PipelineConfig };
+
+// FAST PATH exports: surfaces can use these for task execution
+// while respecting geometry (permit → act → verify → stop)
+export { permit, BoundaryDecision };
+export { verifyOutput, VerificationDecision };

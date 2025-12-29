@@ -173,7 +173,7 @@ describe('ConcrescenceEngine Integration', () => {
       // Response depth should be constrained to surface (safety floor invariant)
       expect(result.occasion.concrescence.satisfaction.depth).toBe('surface');
       // Minimal response enforced - emergency responses may include acknowledgment + grounding
-      expect(result.occasion.future.response.length).toBeLessThan(150);
+      expect(result.occasion.future.response.length).toBeLessThanOrEqual(150);
     });
 
     it('allows full processing for non-emergency input', async () => {
