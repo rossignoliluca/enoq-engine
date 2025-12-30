@@ -1,6 +1,8 @@
-# ENOQ Documentation
+# ENOQ Engine Documentation
 
-> Start here. This is the single entrypoint for all ENOQ documentation.
+> Start here. This is the single entrypoint for ENOQ Engine documentation.
+>
+> **Engine role:** Constitutional geometric motor (permit → verify → stop).
 
 ---
 

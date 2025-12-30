@@ -1,6 +1,6 @@
-# ENOQ-CORE
+# enoq-engine
 
-Constitutional cognitive core. AXIS + Pipeline + 9 Modules.
+ENOQ Engine — Constitutional geometric motor (permit → verify → stop).
 
 > Autopoietic viable system for human empowerment.
 
@@ -11,7 +11,7 @@ Constitutional cognitive core. AXIS + Pipeline + 9 Modules.
 ## Structure
 
 ```
-ENOQ-CORE/
+enoq-engine/
 ├── AXIS/                        # FROZEN constitutional ground
 │   ├── AXIOMS.md                # 12 axioms
 │   ├── INVARIANTS.md            # INV-001 to INV-011

@@ -1,5 +1,5 @@
 {
-  "name": "@enoq/core",
+  "name": "@enoq/engine",
   "version": "6.0.0",
   "description": "ENOQ - Autopoietic viable system for human empowerment",
   "main": "dist/index.js",
