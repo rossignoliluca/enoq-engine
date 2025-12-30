@@ -35,6 +35,15 @@
    - `surfaces/sdk/` - SDK surface
    - See README.md in each directory
 
+7. **Responsibility Returned is a required invariant (v7.9+)**
+   - Every runtime output must return ownership to the human
+   - Canonical markers per runtime:
+     - MAIL: "Sending and editing remains your choice."
+     - RELATION: "Next action remains yours."
+     - DECISION: "Decision ownership remains with you."
+   - Missing marker triggers RESPONSIBILITY_RETURN_MISSING event
+   - No advice, no coaching, no extra interaction
+
 ---
 
 ## Enforcement

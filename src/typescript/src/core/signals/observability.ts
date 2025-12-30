@@ -23,7 +23,9 @@ export type EnoqEventType =
   | 'PROVIDER_FAILOVER'
   | 'PIPELINE_START'
   | 'PIPELINE_END'
-  | 'STATE_TRANSITION';
+  | 'STATE_TRANSITION'
+  | 'RESPONSIBILITY_RETURNED'
+  | 'RESPONSIBILITY_RETURN_MISSING';
 
 export interface EnoqEventBase {
   /** Event type */
@@ -111,6 +113,22 @@ export interface StateTransitionEvent extends EnoqEventBase {
   };
 }
 
+export interface ResponsibilityReturnedEvent extends EnoqEventBase {
+  type: 'RESPONSIBILITY_RETURNED';
+  data: {
+    runtime: string;
+    marker_found: string;
+  };
+}
+
+export interface ResponsibilityReturnMissingEvent extends EnoqEventBase {
+  type: 'RESPONSIBILITY_RETURN_MISSING';
+  data: {
+    runtime: string;
+    output_preview: string;
+  };
+}
+
 export type EnoqEvent =
   | BoundaryBlockedEvent
   | VerifyFailedEvent
@@ -118,7 +136,9 @@ export type EnoqEvent =
   | ProviderFailoverEvent
   | PipelineStartEvent
   | PipelineEndEvent
-  | StateTransitionEvent;
+  | StateTransitionEvent
+  | ResponsibilityReturnedEvent
+  | ResponsibilityReturnMissingEvent;
 
 // ============================================
 // METRICS COLLECTOR
@@ -201,6 +221,8 @@ class ObserverImpl implements Observer {
         PIPELINE_START: 0,
         PIPELINE_END: 0,
         STATE_TRANSITION: 0,
+        RESPONSIBILITY_RETURNED: 0,
+        RESPONSIBILITY_RETURN_MISSING: 0,
       },
       pipeline_durations: [],
       pipeline_successes: 0,
@@ -495,6 +517,44 @@ export function emitStateTransition(
       from_state: fromState,
       to_state: toState,
       duration_ms: durationMs,
+    },
+  };
+  getObserver().emit(event);
+}
+
+/**
+ * Emit RESPONSIBILITY_RETURNED event.
+ */
+export function emitResponsibilityReturned(
+  runtime: string,
+  markerFound: string,
+  options?: { session_id?: string; turn_number?: number; correlation_id?: string }
+): void {
+  const event: ResponsibilityReturnedEvent = {
+    ...createEventBase('RESPONSIBILITY_RETURNED', options),
+    type: 'RESPONSIBILITY_RETURNED',
+    data: {
+      runtime,
+      marker_found: markerFound,
+    },
+  };
+  getObserver().emit(event);
+}
+
+/**
+ * Emit RESPONSIBILITY_RETURN_MISSING event.
+ */
+export function emitResponsibilityReturnMissing(
+  runtime: string,
+  output: string,
+  options?: { session_id?: string; turn_number?: number; correlation_id?: string }
+): void {
+  const event: ResponsibilityReturnMissingEvent = {
+    ...createEventBase('RESPONSIBILITY_RETURN_MISSING', options),
+    type: 'RESPONSIBILITY_RETURN_MISSING',
+    data: {
+      runtime,
+      output_preview: output.slice(0, 100),
     },
   };
   getObserver().emit(event);
