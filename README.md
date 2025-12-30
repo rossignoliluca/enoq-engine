@@ -21,7 +21,7 @@ ENOQ-CORE/
 │   ├── interface/               # Shared types and contracts
 │   │
 │   ├── core/                    # CANONICAL ENTRYPOINT (v6.7+)
-│   │   ├── modules/             # boundary + verification WIRED
+│   │   ├── modules/             # boundary + verification (wrap gate/)
 │   │   ├── pipeline/            # orchestrator.ts → enoqCore()
 │   │   ├── axis-runtime/        # CONTRACT.md (guardrail)
 │   │   └── signals/             # Event system (stub)
@@ -81,6 +81,36 @@ ENOQ-CORE/
 
 ---
 
+## Architecture Notes
+
+### Core Modules Wiring
+
+`core/modules/` contains canonical wrappers that delegate to the real implementations in `gate/`:
+
+| Module | Wraps | Purpose |
+|--------|-------|---------|
+| `boundary.ts` | `gate/classifier/` | Request classification + V_MODE/EMERGENCY detection |
+| `verification.ts` | `gate/verification/S5_verify` | Output verification against AXIS invariants |
+
+This is intentional:
+- **Core** provides the canonical API (`permit()`, `verifyOutput()`)
+- **Gate** contains the implementation logic
+- This separation allows gate to evolve independently while core remains stable
+
+### Entry Points
+
+```
+enoqCore() ← CANONICAL (core/pipeline/orchestrator.ts)
+    ↓
+    permit() → runtimeEnoq() → verify() → STOP
+
+enoq() ← DEPRECATED (runtime/pipeline/pipeline.ts)
+    ↓
+    Runtime processing only, no constitutional checks
+```
+
+---
+
 ## Frozen Rules
 
 See [docs/REPO_CONTRACT.md](./docs/REPO_CONTRACT.md):
@@ -99,7 +129,7 @@ See [docs/REPO_CONTRACT.md](./docs/REPO_CONTRACT.md):
 ```bash
 cd src/typescript
 npm install
-npm test              # 618 tests
+npm test              # 676 tests
 npm run build
 npm run axis-check    # MUST PASS
 ```
@@ -135,6 +165,7 @@ npx ts-node src/runtime/io/interactive_session.ts
 
 | Version | Date | Changes |
 |---------|------|---------|
+| **v7.3** | 2025-12-30 | P1: enoqCore canonical, EnoqError types, LLM fallback chain |
 | **v7.2** | 2025-12-30 | P0 stabilization: 58 new tests, import fixes, axis-check extended |
 | **v7.1** | 2025-12-30 | DECISION traversal: third crossing through geometry |
 | **v7.0.1** | 2025-12-30 | RELATION wording fix: responsibility returns to A |
@@ -155,6 +186,8 @@ npx ts-node src/runtime/io/interactive_session.ts
 | **v6.0** | 2025-12-29 | AXIS constitutional freeze (12 axioms, 11 invariants) |
 
 ### Recent Details
+
+**v7.3**: P1 stabilization - enoqCore canonical entry (enoq deprecated), EnoqError base class with typed codes (API/CONFIG/VALIDATION/PIPELINE/INVARIANT), LLM fallback chain (Anthropic→OpenAI). Architecture notes in README. Tests: 676/692.
 
 **v7.2**: P0 stabilization - 58 new tests (orchestrator, pipeline, traversals), import violations fixed (runtime→experimental, operational→experimental, gate→mediator), axis-check extended (12 checks). Tests: 676/692.
 
